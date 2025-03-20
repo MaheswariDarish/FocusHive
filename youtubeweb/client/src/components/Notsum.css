@@ -1,0 +1,137 @@
+.notsum-container {
+  display: flex;
+  margin-left: 300px;
+}
+
+.content-wrapper {
+  display: flex;
+  width: 100%;
+  padding: 20px;
+}
+
+/* Left Side - Notes List */
+.notes-list {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.note-card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.note-date {
+  color: gray;
+  font-size: 0.9em;
+}
+/* View More Section - Styled Box */
+
+/* Line separator for the expanded description */
+.note-divider {
+  margin: 8px 0;
+  border-top: 1px solid #ccc;
+}
+
+/* "View More" and "Hide" buttons (styled as text) */
+.view-more-btn {
+  color: #1925249e;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 5px;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.view-more-btn:hover {
+  text-decoration: underline;
+}
+
+/* Icons: Edit, Delete, and Close */
+.note-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-icon,
+.delete-icon {
+  cursor: pointer;
+  font-size: 1.2em;
+  color: #192524df;  /* Same color for edit and delete */
+}
+
+.delete-icon:hover,
+.edit-icon:hover {
+  opacity: 0.8;
+}
+
+/* Right Side - Edit Form */
+.edit-form {
+  flex: 1;
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+/* Close Icon */
+.close-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5em;
+  color: #19252497; /* Same color as edit & delete */
+  cursor: pointer;
+}
+
+.close-icon:hover {
+  opacity: 0.8;
+}
+
+/* Edit Form Fields */
+.edit-form input,
+.edit-form textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.edit-form button {
+  background: #192524;;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+/* Search and Filter Bar */
+.search-filter-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.search-bar {
+  flex: 2;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.filter-dropdown {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
