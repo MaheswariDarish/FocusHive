@@ -1,0 +1,187 @@
+/* Optional styles for the MCQ options */
+.mcq-option {
+  padding: 10px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  margin-bottom: 5px;
+}
+
+.mcq-option.correct {
+  background-color: green;
+  color: white;
+}
+
+.mcq-option.incorrect {
+  background-color: red;
+  color: white;
+}
+
+button:disabled {
+  background-color: gray;
+  cursor: not-allowed;
+}
+
+#slider-controls {
+  margin-top: 20px;
+}
+
+#yt-notes-panel {
+  position: fixed;
+  top: 10%;
+  right: 20px; 
+  width: 350px; 
+  height: 85%; 
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  z-index: 10000;
+  font-family: 'Arial', sans-serif;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.notes-header {
+  background-color: #2b2b2b;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.notes-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#close-panel {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #f05454;
+  cursor: pointer;
+}
+
+#close-panel:hover {
+  color: white;
+  font-weight: 600;
+}
+
+#note-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+
+
+.note-content {
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  padding: 15px;
+  font-size: 15px;
+  color: #2d3748;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Button container to align buttons on either side */
+.note-content-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px; /* Space between buttons and the text */
+}
+
+/* Timestamp button styling */
+.note-content-button button:first-child {
+  background-color: #2b6cb0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.note-content-button button:first-child:hover {
+  background-color: #1a202c;
+}
+
+/* Delete button with trash icon */
+.delete-note {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  background-image: url('https://banner2.cleanpng.com/20180409/pge/kisspng-rubbish-bins-waste-paper-baskets-recycling-bin-c-botton-5acb1d8b440136.2101470915232608112786.jpg'); /* Replace with actual URL */
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: opacity 0.3s ease;
+}
+
+.delete-note:hover {
+  opacity: 0.7;
+}
+
+/* Text container styling */
+.note-content-text {
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  color: #4a5568;
+  line-height: 1.5;
+  word-wrap: break-word; 
+}
+
+
+.note-content p {
+  margin: 0;
+}
+
+
+
+
+#yt-notes-text {
+  width: calc(100% - 40px);
+  margin: 10px 15px;
+  height: 80px;
+  padding: 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: none;
+  background-color: #fefefe;
+}
+
+#yt-save-note {
+  margin: 0 15px 15px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #3182ce;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: calc(100% - 40px);
+  transition: background-color 0.3s ease;
+}
+
+#yt-save-note:hover {
+  background-color: #2b6cb0;
+}

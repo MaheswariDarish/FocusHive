@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Generator</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <h1>Generate MCQs</h1>
+    <button id="generate-mcqs-btn">Generate MCQs</button>
+    <button id="generate-summary-btn">Generate Summary</button>
+    <div id="mcq-container"></div>
+    
+    <!-- MCQ Navigation Buttons -->
+    <div id="slider-controls">
+        <button id="prev-btn" disabled>Previous</button>
+        <button id="next-btn" disabled>Next</button>
+    </div>
+    
+    <!-- Output Section -->
+    <textarea id="output" rows="10" cols="50" readonly></textarea>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
