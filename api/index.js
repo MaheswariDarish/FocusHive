@@ -1,6 +1,7 @@
 const admin = require("firebase-admin");
 const cors = require("cors");
 const express = require("express");
+const axios = require("axios");
 const port = 3000;
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
 var serviceAccount = require("./permissions.json");
 
 admin.initializeApp({
@@ -21,13 +23,50 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// Routes
+// Fetch summary from Flask and store in Firestore
+app.post("/generate-summary", async (req, res) => {
+  try {
+    const { userId, videoId, summary } = req.body;
+
+    if (!userId || !videoId || !summary) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Store summary in Firestore
+    const summaryRef = db.collection("summaries").doc(`${userId}_${videoId}`);
+    await summaryRef.set({ userId, videoId, summary });
+
+    res.status(200).json({ message: "Summary saved successfully", summary });
+  } catch (error) {
+    console.error("Error generating or storing summary:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Fetch stored summary from Firestore
+app.get("/fetch-summary/:userId/:videoId", async (req, res) => {
+  try {
+    const { userId, videoId } = req.params;
+    const summaryRef = db.collection("summaries").doc(`${userId}_${videoId}`);
+    const doc = await summaryRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ message: "Summary not found" });
+    }
+
+    res.status(200).json(doc.data());
+  } catch (error) {
+    console.error("Error fetching summary:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Notes-related routes
 
 // Fetch notes
 app.get("/notes/:userId/:videoId", async (req, res) => {
-  const { userId, videoId } = req.params;
-
   try {
+    const { userId, videoId } = req.params;
     const docRef = db.collection("notes").doc(`${userId}_${videoId}`);
     const doc = await docRef.get();
 
@@ -35,8 +74,7 @@ app.get("/notes/:userId/:videoId", async (req, res) => {
       return res.status(404).json({ notes: [] });
     }
 
-    const notesData = doc.data();
-    res.status(200).json(notesData);
+    res.status(200).json(doc.data());
   } catch (error) {
     console.error("Error fetching notes:", error);
     res.status(500).send("Error fetching notes");
@@ -45,9 +83,8 @@ app.get("/notes/:userId/:videoId", async (req, res) => {
 
 // Delete a note
 app.delete("/notes/:userId/:videoId/:noteIndex", async (req, res) => {
-  const { userId, videoId, noteIndex } = req.params;
-
   try {
+    const { userId, videoId, noteIndex } = req.params;
     const docRef = db.collection("notes").doc(`${userId}_${videoId}`);
     const doc = await docRef.get();
 
@@ -55,10 +92,8 @@ app.delete("/notes/:userId/:videoId/:noteIndex", async (req, res) => {
       return res.status(404).send("No notes found");
     }
 
-    const notesData = doc.data();
-    const notes = notesData.notes;
+    const notes = doc.data().notes;
 
-    
     if (noteIndex < 0 || noteIndex >= notes.length) {
       return res.status(400).send("Invalid note index");
     }
@@ -83,12 +118,10 @@ app.post("/save-note", async (req, res) => {
 
     const noteId = `${userId}_${videoId}`;
     const noteRef = db.collection("notes").doc(noteId);
-
     const existingDoc = await noteRef.get();
 
     if (existingDoc.exists) {
-      const existingData = existingDoc.data();
-      const updatedNotes = [...existingData.notes, { content, timestamp }];
+      const updatedNotes = [...existingDoc.data().notes, { content, timestamp }];
       await noteRef.update({ notes: updatedNotes });
     } else {
       await noteRef.set({
@@ -105,7 +138,6 @@ app.post("/save-note", async (req, res) => {
   }
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
