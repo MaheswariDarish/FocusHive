@@ -1,4 +1,6 @@
 *.env
 .env
-cenv/
+backend/cenv/
+api/permissions.json
+api/node_modules
 

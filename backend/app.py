@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS  # Import CORS
 from youtube_transcript_api import YouTubeTranscriptApi
+from dotenv import load_dotenv
 import google.generativeai as genai
 import os
 import json
 
+load_dotenv()
 # Initialize Flask app
 app = Flask(__name__)
 
@@ -12,7 +14,7 @@ app = Flask(__name__)
 CORS(app)  # This will allow all origins. You can also restrict to specific origins.
 
 # Set up Gemini API
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDUklL1ux4c1DuLGEr01UK-fatCW4dAI5A"
+os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
 genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 model = genai.GenerativeModel("models/gemini-1.5-pro")
 
