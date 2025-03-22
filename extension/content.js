@@ -6,25 +6,17 @@
   const userId = "user123";
   const apiKey = "AIzaSyCD9ws46HMxYj753MU5fxVMMHHOs8x0QJw";
 
+  // Load CSS
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = chrome.runtime.getURL('popup.css');
+  document.head.appendChild(link);
+
   // Create panel button
   const panelButton = document.createElement("button");
   panelButton.textContent = "Study Panel";
   panelButton.id = "yt-panel-button";
-  Object.assign(panelButton.style, {
-    position: "absolute",
-    top: "20px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    backgroundColor: "#0073e6",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    padding: "10px 20px",
-    fontSize: "16px",
-    cursor: "pointer",
-    zIndex: 9999,
-  });
-
   const playerControls = document.querySelector(".ytp-right-controls");
   playerControls.appendChild(panelButton);
 
@@ -71,174 +63,6 @@
     </div>
   `;
   document.body.appendChild(unifiedPanel);
-
-  // Add styles
-  const style = document.createElement('style');
-  style.textContent = `
-    #yt-unified-panel {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 400px;
-      height: 100vh;
-      background: white;
-      box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-      display: flex;
-      flex-direction: column;
-      z-index: 9999;
-    }
-
-    .panel-header {
-      padding: 15px;
-      border-bottom: 1px solid #eee;
-      background: #f8f9fa;
-    }
-
-    .panel-header h3 {
-      margin: 0 0 15px 0;
-      font-size: 16px;
-      color: #333;
-    }
-
-    .tab-buttons {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .tab-button {
-      padding: 8px 16px;
-      border: none;
-      background: #e9ecef;
-      border-radius: 4px;
-      cursor: pointer;
-      flex: 1;
-    }
-
-    .tab-button.active {
-      background: #0073e6;
-      color: white;
-    }
-
-    #close-panel {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #666;
-    }
-
-    .tab-content {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .tab {
-      display: none;
-      height: 100%;
-      padding: 15px;
-      overflow-y: auto;
-    }
-
-    .tab.active {
-      display: block;
-    }
-
-    #note-list {
-      margin-bottom: 15px;
-      max-height: calc(100% - 120px);
-      overflow-y: auto;
-    }
-
-    .note {
-      margin-bottom: 10px;
-      padding: 10px;
-      background: #f8f9fa;
-      border-radius: 4px;
-    }
-
-    .note-content-button {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-    }
-
-    #yt-notes-text {
-      width: 100%;
-      height: 80px;
-      margin-bottom: 10px;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      resize: none;
-    }
-
-    #summary-text {
-      width: 100%;
-      height: calc(100vh - 250px);
-      margin-bottom: 10px;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      resize: none;
-    }
-
-    .mcq {
-      margin-bottom: 20px;
-    }
-
-    .mcq-options {
-      list-style: none;
-      padding: 0;
-    }
-
-    .mcq-option {
-      padding: 10px;
-      margin: 5px 0;
-      background: #f8f9fa;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .mcq-option:hover {
-      background: #e9ecef;
-    }
-
-    .mcq-option.correct {
-      background: #28a745;
-      color: white;
-    }
-
-    .mcq-option.incorrect {
-      background: #dc3545;
-      color: white;
-    }
-
-    .mcq-controls {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-
-    button {
-      padding: 8px 16px;
-      border: none;
-      background: #0073e6;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-  `;
-  document.head.appendChild(style);
 
   // Tab switching logic
   document.querySelectorAll('.tab-button').forEach(button => {

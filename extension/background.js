@@ -2,6 +2,17 @@ chrome.runtime.onInstalled.addListener(() => {
   console.log("YouTube Video Helper Extension Installed");
 });
 
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.storage.local.set({ watchHistory: [] });
+  });
+  
+  // Listen for messages from popup to content script
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'toggleTimer') {
+      chrome.tabs.sendMessage(sender.tab.id, { action: 'toggleTimer' });
+    }
+  });
+
 // Listen for messages from the popup and handle video ID and API requests
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "generate_mcqs" || message.type === "generate_summary") {
