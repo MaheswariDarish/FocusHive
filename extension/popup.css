@@ -175,3 +175,41 @@ button:disabled {
   cursor: pointer;
   z-index: 9999;
 }
+
+#yt-timer {
+  position: fixed;
+  top: 50px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  z-index: 9999;
+  cursor: move;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.timer-display {
+  font-family: monospace;
+  font-size: 18px;
+  text-align: center;
+}
+
+.timer-toggle {
+  background: #ffffff33;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.timer-toggle:hover {
+  background: #ffffff44;
+}

@@ -1,4 +1,5 @@
 (() => {
+  // Common variables
   let videoId = new URLSearchParams(window.location.search).get("v");
   if (!videoId) return;
   const apiUrl = "http://localhost:3000";
@@ -6,12 +7,29 @@
   const userId = "user123";
   const apiKey = "AIzaSyCD9ws46HMxYj753MU5fxVMMHHOs8x0QJw";
 
+  // Timer variables
+  let timer;
+  let startTime;
+  let isTimerVisible = true;
+  let isVideoPlaying = true;
+  let currentVideoId = '';
+  let accumulatedTime = 0;
+
   // Load CSS
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.type = 'text/css';
   link.href = chrome.runtime.getURL('popup.css');
   document.head.appendChild(link);
+
+  // Create timer element
+  const timerElement = document.createElement('div');
+  timerElement.id = 'yt-timer';
+  timerElement.innerHTML = `
+    <div class="timer-display">00:00:00</div>
+    <button class="timer-toggle">Hide</button>
+  `;
+  document.body.appendChild(timerElement);
 
   // Create panel button
   const panelButton = document.createElement("button");
@@ -64,19 +82,98 @@
   `;
   document.body.appendChild(unifiedPanel);
 
-  // Tab switching logic
-  document.querySelectorAll('.tab-button').forEach(button => {
-    button.addEventListener('click', () => {
-      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      
-      button.classList.add('active');
-      const tabId = button.getAttribute('data-tab');
-      document.getElementById(`${tabId}-tab`).classList.add('active');
-    });
-  });
+  // Timer Dragging Functionality
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
 
-  // Fetch video details
+  timerElement.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+
+    if (e.target === timerElement) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      xOffset = currentX;
+      yOffset = currentY;
+      setTranslate(currentX, currentY, timerElement);
+    }
+  }
+
+  function dragEnd() {
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+  }
+
+  // Timer Functions
+  function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  function startTimer() {
+    if (!isVideoPlaying) return;
+    
+    if (!startTime) {
+      startTime = Date.now();
+    }
+    updateTimer();
+  }
+
+  function pauseTimer() {
+    if (timer) {
+      cancelAnimationFrame(timer);
+      timer = null;
+    }
+    if (startTime) {
+      const currentElapsed = (Date.now() - startTime) / 1000;
+      accumulatedTime += currentElapsed;
+      startTime = null;
+      saveVideoToHistory();
+    }
+  }
+
+  function updateTimer() {
+    if (!startTime || !isVideoPlaying) return;
+    
+    const currentElapsed = (Date.now() - startTime) / 1000;
+    const totalElapsed = accumulatedTime + currentElapsed;
+    timerElement.querySelector('.timer-display').textContent = formatTime(totalElapsed);
+    
+    timer = requestAnimationFrame(updateTimer);
+  }
+
+  function resetTimer() {
+    if (timer) {
+      cancelAnimationFrame(timer);
+      timer = null;
+    }
+    startTime = null;
+    accumulatedTime = 0;
+    timerElement.querySelector('.timer-display').textContent = '00:00:00';
+  }
+
+  // Study Panel Functions
   const fetchVideoDetails = async (videoId) => {
     const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${apiKey}`;
     try {
@@ -91,7 +188,7 @@
     }
   };
 
-  // Monitor video ID changes
+  // Monitor video ID changes for study panel
   const monitorVideoIdChanges = () => {
     const observer = new MutationObserver(() => {
       const newVideoId = new URLSearchParams(window.location.search).get("v");
@@ -108,7 +205,6 @@
     }
   };
 
-  // Notes functionality
   const loadNotes = async () => {
     if (!videoId) return;
 
@@ -126,7 +222,7 @@
             <div class="note-content">
               <div class="note-content-button">
                 <button onclick="window.location.href='https://www.youtube.com/watch?v=${videoId}&t=${note.timestamp}s'">
-                  ${formatTimestamp(note.timestamp)}
+                  ${formatTime(note.timestamp)}
                 </button>
                 <button class="delete-note" data-index="${index}">Delete</button>
               </div>
@@ -138,7 +234,6 @@
           noteList.appendChild(noteDiv);
         });
 
-        // Add delete functionality
         document.querySelectorAll(".delete-note").forEach((button) => {
           button.addEventListener("click", async (event) => {
             const index = event.target.getAttribute("data-index");
@@ -198,6 +293,18 @@
     }
   });
 
+  // Tab switching
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      
+      button.classList.add('active');
+      const tabId = button.getAttribute('data-tab');
+      document.getElementById(`${tabId}-tab`).classList.add('active');
+    });
+  });
+
   // MCQ functionality
   let mcqs = [];
   let currentMCQIndex = 0;
@@ -227,7 +334,6 @@
     }
   });
 
-  // MCQ navigation
   document.getElementById("prev-btn").addEventListener("click", () => {
     if (currentMCQIndex > 0) {
       currentMCQIndex--;
@@ -310,12 +416,13 @@
     }
   });
 
-  // Helper functions
-  const formatTimestamp = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs.toString().padStart(2, "0")}`;
-  };
+  // Timer toggle
+  const toggleButton = timerElement.querySelector('.timer-toggle');
+  toggleButton.addEventListener('click', () => {
+    isTimerVisible = !isTimerVisible;
+    timerElement.style.opacity = isTimerVisible ? '1' : '0';
+    toggleButton.textContent = isTimerVisible ? 'Hide' : 'Show';
+  });
 
   // Panel toggle
   panelButton.addEventListener("click", () => {
@@ -329,10 +436,115 @@
     unifiedPanel.style.display = "none";
   });
 
+  // Video player state observers
+  function setupVideoObserver() {
+    const video = document.querySelector('video');
+    if (!video) return;
+
+    // Load existing watch time for the current video
+    const videoId = getVideoId();
+    if (videoId) {
+      chrome.storage.local.get(['watchHistory'], (result) => {
+        const history = result.watchHistory || [];
+        const existingVideo = history.find(v => v.videoId === videoId);
+        if (existingVideo) {
+          accumulatedTime = existingVideo.watchTime;
+          timerElement.querySelector('.timer-display').textContent = formatTime(accumulatedTime);
+        }
+      });
+    }
+
+    video.addEventListener('play', () => {
+      isVideoPlaying = true;
+      startTimer();
+    });
+
+    video.addEventListener('pause', () => {
+      isVideoPlaying = false;
+      pauseTimer();
+    });
+
+    video.addEventListener('ended', () => {
+      isVideoPlaying = false;
+      pauseTimer();
+    });
+  }
+
+  // Watch for video changes
+  function handleVideoChange() {
+    const newVideoId = getVideoId();
+    if (newVideoId && newVideoId !== currentVideoId) {
+      if (currentVideoId) {
+        pauseTimer();
+      }
+      currentVideoId = newVideoId;
+      resetTimer();
+      setupVideoObserver();
+    }
+  }
+
+  // Video History Functions
+  function getVideoId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('v');
+  }
+
+  function saveVideoToHistory() {
+    const videoTitle = document.querySelector('h1.ytd-video-primary-info-renderer')?.textContent;
+    const videoId = getVideoId();
+    if (!videoTitle || !videoId) return;
+
+    const totalElapsed = startTime 
+      ? accumulatedTime + ((Date.now() - startTime) / 1000)
+      : accumulatedTime;
+
+    chrome.storage.local.get(['watchHistory'], (result) => {
+      const history = result.watchHistory || [];
+      const existingVideo = history.find(v => v.videoId === videoId);
+      
+      if (existingVideo) {
+        existingVideo.watchTime = Math.floor(totalElapsed);
+        existingVideo.lastWatched = Date.now();
+      } else {
+        history.push({
+          videoId,
+          title: videoTitle,
+          url: window.location.href,
+          watchTime: Math.floor(totalElapsed),
+          lastWatched: Date.now()
+        });
+      }
+      
+      chrome.storage.local.set({ watchHistory: history });
+    });
+  }
+
+  // Chrome extension message handling
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'toggleTimer') {
+      toggleButton.click();
+    }
+  });
+
+  // Initialize observers
+  const pageObserver = new MutationObserver(() => {
+    if (window.location.pathname.includes('/watch')) {
+      handleVideoChange();
+    }
+  });
+
+  pageObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
   // Initialize
   if (videoId) {
     fetchVideoDetails(videoId);
     loadNotes();
+  }
+  if (window.location.pathname.includes('/watch')) {
+    handleVideoChange();
   }
   monitorVideoIdChanges();
 })();
