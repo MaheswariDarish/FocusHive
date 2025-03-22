@@ -11,7 +11,7 @@
   let timer;
   let startTime;
   let isTimerVisible = true;
-  let isVideoPlaying = true;
+  let isVideoPlaying = false;
   let currentVideoId = '';
   let accumulatedTime = 0;
 
@@ -36,7 +36,9 @@
   panelButton.textContent = "Study Panel";
   panelButton.id = "yt-panel-button";
   const playerControls = document.querySelector(".ytp-right-controls");
-  playerControls.appendChild(panelButton);
+  if (playerControls) {
+    playerControls.appendChild(panelButton);
+  }
 
   // Create unified panel
   const unifiedPanel = document.createElement("div");
@@ -163,16 +165,6 @@
     timer = requestAnimationFrame(updateTimer);
   }
 
-  function resetTimer() {
-    if (timer) {
-      cancelAnimationFrame(timer);
-      timer = null;
-    }
-    startTime = null;
-    accumulatedTime = 0;
-    timerElement.querySelector('.timer-display').textContent = '00:00:00';
-  }
-
   // Study Panel Functions
   const fetchVideoDetails = async (videoId) => {
     const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${apiKey}`;
@@ -190,10 +182,11 @@
 
   // Monitor video ID changes for study panel
   const monitorVideoIdChanges = () => {
-    const observer = new MutationObserver(() => {
+    const observer = new MutationObserver(async () => {
       const newVideoId = new URLSearchParams(window.location.search).get("v");
       if (newVideoId && newVideoId !== videoId) {
         videoId = newVideoId;
+        await loadWatchTime(); // Load watch time first
         fetchVideoDetails(videoId);
         loadNotes();
       }
@@ -441,19 +434,6 @@
     const video = document.querySelector('video');
     if (!video) return;
 
-    // Load existing watch time for the current video
-    const videoId = getVideoId();
-    if (videoId) {
-      chrome.storage.local.get(['watchHistory'], (result) => {
-        const history = result.watchHistory || [];
-        const existingVideo = history.find(v => v.videoId === videoId);
-        if (existingVideo) {
-          accumulatedTime = existingVideo.watchTime;
-          timerElement.querySelector('.timer-display').textContent = formatTime(accumulatedTime);
-        }
-      });
-    }
-
     video.addEventListener('play', () => {
       isVideoPlaying = true;
       startTimer();
@@ -471,17 +451,36 @@
   }
 
   // Watch for video changes
-  function handleVideoChange() {
+  async function handleVideoChange() {
     const newVideoId = getVideoId();
     if (newVideoId && newVideoId !== currentVideoId) {
-      if (currentVideoId) {
-        pauseTimer();
-      }
-      currentVideoId = newVideoId;
-      resetTimer();
-      setupVideoObserver();
+        if (currentVideoId) {
+            pauseTimer();
+            resetTimer();
+        }
+
+        currentVideoId = newVideoId;
+        videoId = newVideoId;
+
+        accumulatedTime = 0;
+        startTime = null;
+
+        await loadWatchTime();
+        setupVideoObserver();
     }
-  }
+}
+
+function resetTimer() {
+    if (timer) {
+        cancelAnimationFrame(timer);
+        timer = null;
+    }
+    startTime = null;
+    accumulatedTime = 0;
+    isVideoPlaying = false;
+    timerElement.querySelector('.timer-display').textContent = '00:00:00';
+}
+
 
   // Video History Functions
   function getVideoId() {
@@ -489,7 +488,30 @@
     return urlParams.get('v');
   }
 
-  function saveVideoToHistory() {
+  async function loadWatchTime() {
+    try {
+      const response = await fetch(`${apiUrl}/analytics/watch-time/${userId}/${videoId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.watchTime !== undefined) {
+          // Set accumulated time from stored watch time
+          accumulatedTime = data.watchTime;
+          timerElement.querySelector('.timer-display').textContent = formatTime(accumulatedTime);
+        } else {
+          // Reset timer if no previous watch time exists
+          resetTimer();
+        }
+      } else {
+        // Reset timer for new videos
+        resetTimer();
+      }
+    } catch (error) {
+      console.error("Error loading watch time:", error);
+      resetTimer();
+    }
+  }
+
+  async function saveVideoToHistory() {
     const videoTitle = document.querySelector('h1.ytd-video-primary-info-renderer')?.textContent;
     const videoId = getVideoId();
     if (!videoTitle || !videoId) return;
@@ -498,25 +520,24 @@
       ? accumulatedTime + ((Date.now() - startTime) / 1000)
       : accumulatedTime;
 
-    chrome.storage.local.get(['watchHistory'], (result) => {
-      const history = result.watchHistory || [];
-      const existingVideo = history.find(v => v.videoId === videoId);
-      
-      if (existingVideo) {
-        existingVideo.watchTime = Math.floor(totalElapsed);
-        existingVideo.lastWatched = Date.now();
-      } else {
-        history.push({
+    try {
+      await fetch(`${apiUrl}/analytics/watch-time`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId,
           videoId,
           title: videoTitle,
           url: window.location.href,
           watchTime: Math.floor(totalElapsed),
-          lastWatched: Date.now()
-        });
-      }
-      
-      chrome.storage.local.set({ watchHistory: history });
-    });
+          lastWatched: new Date().toLocaleDateString()
+        })
+      });
+    } catch (error) {
+      console.error("Error saving watch time:", error);
+    }
   }
 
   // Chrome extension message handling
@@ -542,6 +563,7 @@
   if (videoId) {
     fetchVideoDetails(videoId);
     loadNotes();
+    loadWatchTime();
   }
   if (window.location.pathname.includes('/watch')) {
     handleVideoChange();

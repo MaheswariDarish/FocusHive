@@ -23,6 +23,38 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+// Timer Analytics Routes
+app.post("/analytics/watch-time", async (req, res) => {
+  try {
+    const { userId, videoId, watchTime, title, url, lastWatched } = req.body;
+
+    if (!userId || !videoId || watchTime === undefined) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const analyticsRef = db.collection("analytics").doc(`${userId}_${videoId}`);
+    
+    // Convert lastWatched to Firestore Timestamp
+    const lastWatchedDate = new Date(lastWatched);
+    
+    await analyticsRef.set({
+      userId,
+      videoId,
+      title,
+      url,
+      watchTime,
+      lastWatched: admin.firestore.Timestamp.fromDate(lastWatchedDate),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    res.status(200).json({ message: "Watch time updated successfully" });
+  } catch (error) {
+    console.error("Error updating watch time:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 // Fetch summary from Flask and store in Firestore
 app.post("/generate-summary", async (req, res) => {
   try {
