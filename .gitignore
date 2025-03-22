@@ -3,4 +3,4 @@
 backend/cenv/
 api/permissions.json
 api/node_modules
-backend/venv/
+firebaseServiceAccount.json

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import "./Dashboard.css";
+import NoteTile from "../components/NoteTile";
 const Dashboard = () => {
   const [user, setUser] = useState(null);
 
@@ -55,8 +56,9 @@ const Dashboard = () => {
     <div>
       <Sidebar />
       <div className="username">
-        <hi>Welcome,{user.displayName}</hi>
+        <h1>Welcome,{user.displayName}</h1>
       </div>
+      
     </div>
 
   );
