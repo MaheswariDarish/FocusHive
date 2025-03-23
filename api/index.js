@@ -54,6 +54,23 @@ app.post("/analytics/watch-time", async (req, res) => {
   }
 });
 
+app.get("/analytics/watch-time/:userId/:videoId", async (req, res) => {
+  try {
+    const { userId, videoId } = req.params;
+    const analyticsRef = db.collection("analytics").doc(`${userId}_${videoId}`);
+    const doc = await analyticsRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ message: "No watch time data found" });
+    }
+
+    res.status(200).json(doc.data());
+  } catch (error) {
+    console.error("Error fetching watch time:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 
 // Fetch summary from Flask and store in Firestore
 app.post("/generate-summary", async (req, res) => {
