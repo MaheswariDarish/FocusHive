@@ -1,0 +1,114 @@
+.notes-details-page {
+    padding: 24px;
+    margin-left: 250px;
+    min-height: 100vh;
+    background-color: #f9fafb;
+}
+
+.notes-details-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background: #f3f4f6;
+}
+
+.video-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.notes-details-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+/* Notes Section Styles */
+.notes-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+}
+
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.notes-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.create-note-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: #059669;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.create-note-button:hover {
+    background: #047857;
+}
+
+.create-note-form {
+    margin-bottom: 16px;
+}
+
+.note-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    resize: vertical;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.notes-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 16px;
+}

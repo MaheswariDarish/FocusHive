@@ -1,0 +1,73 @@
+.note-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.note-content {
+    margin-bottom: 12px;
+}
+
+.note-content p {
+    color: #374151;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.note-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.edit-button,
+.delete-button,
+.save-button,
+.cancel-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.edit-button {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+}
+
+.delete-button {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+.save-button {
+    background: #059669;
+    border: none;
+    color: white;
+}
+
+.cancel-button {
+    background: #ef4444;
+    border: none;
+    color: white;
+}
+
+.note-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    resize: vertical;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}

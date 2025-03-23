@@ -13,8 +13,7 @@ const NotesPage = ({ userId }) => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // TODO: Remove this hardcoded value in production
-    userId = "user123";
+    userId = "user123"; // Hardcoded for now
 
     useEffect(() => {
         if (!userId) {
@@ -35,26 +34,24 @@ const NotesPage = ({ userId }) => {
 
                 const videoMap = new Map();
 
-               
                 notesSnapshot.docs.forEach((doc) => {
                     const videoId = doc.data().videoId;
                     if (!videoMap.has(videoId)) {
                         videoMap.set(videoId, {
                             id: videoId,
                             docId: doc.id,
-                            title: doc.data().title || "Loading...",
+                            title: doc.data().title || "Untitled Video",
                         });
                     }
                 });
 
-                
                 summariesSnapshot.docs.forEach((doc) => {
                     const videoId = doc.data().videoId;
                     if (!videoMap.has(videoId)) {
                         videoMap.set(videoId, {
                             id: videoId,
                             docId: doc.id,
-                            title: doc.data().title || "Loading...",
+                            title: doc.data().title || "Untitled Video",
                         });
                     }
                 });
@@ -75,7 +72,6 @@ const NotesPage = ({ userId }) => {
     return (
         <div className="notes-page">
             <Sidebar />
-            
             <div className="notes-container">
                 <div className="notes-content">
                     <div className="notes-header">
@@ -83,27 +79,12 @@ const NotesPage = ({ userId }) => {
                         <h1 className="notes-title">Your Video Notes</h1>
                     </div>
 
-                    {error && (
-                        <div className="error-message">
-                            <p>{error}</p>
-                        </div>
-                    )}
+                    {error && <p className="error-message">{error}</p>}
 
                     {loading ? (
-                        <div className="loading-skeleton">
-                            {[1, 2, 3].map((n) => (
-                                <div key={n} className="loading-skeleton-item">
-                                    <div className="loading-skeleton-line"></div>
-                                    <div className="loading-skeleton-line"></div>
-                                </div>
-                            ))}
-                        </div>
+                        <p>Loading...</p>
                     ) : videos.length === 0 ? (
-                        <div className="empty-state">
-                            <VideoCamera className="empty-state-icon" />
-                            <h3 className="empty-state-title">No notes yet</h3>
-                            <p className="empty-state-text">Start adding video notes to see them here.</p>
-                        </div>
+                        <p>No notes available.</p>
                     ) : (
                         videos.map(video => (
                             <NoteTile 
