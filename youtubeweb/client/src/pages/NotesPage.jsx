@@ -23,28 +23,53 @@ const NotesPage = ({ userId }) => {
             return;
         }
 
-        const fetchNotes = async () => {
+        const fetchData = async () => {
             try {
                 const notesQuery = query(collection(db, "notes"), where("userId", "==", userId));
-                const querySnapshot = await getDocs(notesQuery);
+                const summariesQuery = query(collection(db, "summaries"), where("userId", "==", userId));
 
-                const fetchedVideos = querySnapshot.docs.map(doc => ({
-                    id: doc.data().videoId,
-                    docId: doc.id,
-                    title: doc.data().title || "Loading...",
-                }));
+                const [notesSnapshot, summariesSnapshot] = await Promise.all([
+                    getDocs(notesQuery),
+                    getDocs(summariesQuery),
+                ]);
 
-                setVideos(fetchedVideos);
+                const videoMap = new Map();
+
+               
+                notesSnapshot.docs.forEach((doc) => {
+                    const videoId = doc.data().videoId;
+                    if (!videoMap.has(videoId)) {
+                        videoMap.set(videoId, {
+                            id: videoId,
+                            docId: doc.id,
+                            title: doc.data().title || "Loading...",
+                        });
+                    }
+                });
+
+                
+                summariesSnapshot.docs.forEach((doc) => {
+                    const videoId = doc.data().videoId;
+                    if (!videoMap.has(videoId)) {
+                        videoMap.set(videoId, {
+                            id: videoId,
+                            docId: doc.id,
+                            title: doc.data().title || "Loading...",
+                        });
+                    }
+                });
+
+                setVideos(Array.from(videoMap.values()));
                 setError(null);
             } catch (error) {
                 console.error("Error fetching videos:", error);
-                setError("Failed to load your notes. Please try again later.");
+                setError("Failed to load your notes and summaries. Please try again later.");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchNotes();
+        fetchData();
     }, [userId]);
 
     return (

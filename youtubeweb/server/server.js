@@ -77,6 +77,18 @@ app.get("/api/videos", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch video IDs" });
   }
 });
+app.get("/api/videos", async (req, res) => {
+  try {
+    const snapshot = await db.collection("summaries").get();
+    const videos = snapshot.docs.map((doc) => doc.data().videoId);
+
+    console.log("Fetched Video IDs:", videos); // ✅ Check if video IDs are fetched
+    res.json(videos);
+  } catch (error) {
+    console.error("Error fetching video IDs:", error); // ✅ Log errors if any
+    res.status(500).json({ error: "Failed to fetch video IDs" });
+  }
+});
 
 
 // Backend logout route
