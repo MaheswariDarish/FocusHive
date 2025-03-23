@@ -4,3 +4,4 @@ backend/cenv/
 api/permissions.json
 api/node_modules
 firebaseServiceAccount.json
+youtubeweb/server/node_modules
