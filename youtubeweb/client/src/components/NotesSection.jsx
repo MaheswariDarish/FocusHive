@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import NoteCard from "./NoteCard";
 import "./NotesSection.css";
 
-const NotesSection = ({ notes, onCreate, onEdit, onDelete }) => {
+const NotesSection = ({ notes, videoId, onCreate, onEdit, onDelete }) => {
     const [newNote, setNewNote] = useState("");
     const [isCreating, setIsCreating] = useState(false);
 
@@ -19,10 +19,7 @@ const NotesSection = ({ notes, onCreate, onEdit, onDelete }) => {
         <div className="notes-section">
             <div className="notes-header">
                 <h2>Notes ({notes.length})</h2>
-                <button 
-                    className="create-note-button"
-                    onClick={() => setIsCreating(true)}
-                >
+                <button className="create-note-button" onClick={() => setIsCreating(true)}>
                     <Plus size={16} />
                     Create Note
                 </button>
@@ -37,13 +34,10 @@ const NotesSection = ({ notes, onCreate, onEdit, onDelete }) => {
                         className="note-textarea"
                     />
                     <div className="form-actions">
-                        <button 
-                            className="save-button"
-                            onClick={handleAddNote}
-                        >
+                        <button className="save-button" onClick={handleAddNote}>
                             Save
                         </button>
-                        <button 
+                        <button
                             className="cancel-button"
                             onClick={() => {
                                 setNewNote("");
@@ -57,10 +51,11 @@ const NotesSection = ({ notes, onCreate, onEdit, onDelete }) => {
             )}
 
             <div className="notes-list">
-                {notes.map(note => (
+                {notes.map((note) => (
                     <NoteCard
                         key={note.id}
                         note={note}
+                        videoId={videoId} // Pass videoId to NoteCard
                         onEdit={onEdit}
                         onDelete={onDelete}
                     />

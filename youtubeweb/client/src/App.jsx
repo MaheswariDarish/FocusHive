@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar';
 import SignIn from './pages/SignIn';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotesPage from './pages/NotesPage';
+import WatchHistory from './pages/Analytics';
 const App = () => {
   return (
     // <div>
@@ -17,6 +18,7 @@ const App = () => {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/notes" element={<NotesPage />} />
       <Route path="/notes/:videoId" element={<NotesDetailsPage />} />
+      <Route path="/analytics" element={<WatchHistory />} />
     </Routes>
   </Router>
   );

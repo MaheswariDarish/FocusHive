@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Edit2, Trash2, Save, X } from "lucide-react";
 import "./NoteCard.css";
 
-const NoteCard = ({ note, onEdit, onDelete }) => {
+const NoteCard = ({ note, videoId, onEdit, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedText, setEditedText] = useState(note.text);
 
@@ -18,8 +18,27 @@ const NoteCard = ({ note, onEdit, onDelete }) => {
         setIsEditing(false);
     };
 
+    // Convert timestamp from HH:MM:SS to seconds (for YouTube link)
+    const timestampToSeconds = (timestamp) => {
+        const [hours, minutes, seconds] = timestamp.split(":").map(Number);
+        return hours * 3600 + minutes * 60 + seconds;
+    };
+
+    const openYouTubeAtTimestamp = () => {
+        const seconds = timestampToSeconds(note.timestamp);
+        const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}&t=${seconds}s`;
+        window.open(youtubeUrl, "_blank");
+    };
+
     return (
         <div className="note-card">
+            {/* Timestamp as a button */}
+            <div className="note-header">
+                <button className="note-timestamp" onClick={openYouTubeAtTimestamp}>
+                    {note.timestamp} {/* Displays HH:MM:SS format */}
+                </button>
+            </div>
+
             <div className="note-content">
                 {isEditing ? (
                     <textarea
