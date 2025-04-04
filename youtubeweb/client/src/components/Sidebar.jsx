@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaChartBar, FaFileAlt } from "react-icons/fa"; // Importing icons
+import { FaChartBar, FaComment, FaFacebookMessenger, FaFileAlt } from "react-icons/fa"; // Importing icons
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./Sidebar.css"; 
 
@@ -45,8 +45,8 @@ const Sidebar = () => {
                 <p>FocusHive</p>
             </div>
             <div className="menu-item" onClick={() => navigate("/dashboard")}>
-                <FaChartBar className="menu-icon" /> {/* Analytics Icon */}
-                <p className="menu-text">Dashboard</p>
+                <FaComment className="menu-icon" /> {/* Analytics Icon */}
+                <p className="menu-text">ChatHub</p>
             </div>
             <div className="menu-item" onClick={() => navigate("/analytics")}>
                 <FaChartBar className="menu-icon" /> {/* Analytics Icon */}

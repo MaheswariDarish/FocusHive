@@ -5,6 +5,7 @@ import { Camera as VideoCamera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import NoteTile from "../components/NoteTile";
 import Sidebar from "../components/Sidebar";
+import axios from "axios";
 import "./NotesPage.css";
 
 const NotesPage = ({ userId }) => {
@@ -12,9 +13,15 @@ const NotesPage = ({ userId }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-
-    userId = "user123"; // Hardcoded for now
-
+     const [user, setUser] = useState(null);
+     useEffect(() => {
+        axios
+          .get("http://localhost:5000/auth/user", { withCredentials: true })
+          .then((res) => setUser(res.data))
+          .catch(() => setUser(null));
+      }, []);
+      userId=user?.id; // Use the user ID from the authenticated user
+      console.log(userId);
     useEffect(() => {
         if (!userId) {
             setError("User ID is required");
