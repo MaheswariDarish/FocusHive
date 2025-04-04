@@ -101,7 +101,7 @@ chrome.storage.sync.get(['isContentFilteringEnabled', 'filterTopic'], (data) => 
 let videoId = new URLSearchParams(window.location.search).get("v");
 const isVideoPage = window.location.pathname === '/watch';
 const isHomePage = window.location.pathname === '/';
-const apiUrl = "http://localhost:3000";
+const apiUrl = "http://localhost:3031";
 const flaskApiUrl = "http://127.0.0.1:5000";
 const youtubeApiKey = "AIzaSyCD9ws46HMxYj753MU5fxVMMHHOs8x0QJw";
 const firebaseApiKey = "AIzaSyACEE7fHRZGwEbw8GlBZhL2AUpLZgzfPWY";
