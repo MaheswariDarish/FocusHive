@@ -1,20 +1,26 @@
+// server.js
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const cors = require("cors");
-require("dotenv").config();
 const admin = require("firebase-admin");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+require("dotenv").config();
+
 const app = express();
 const PORT = 5000;
-const serviceAccount = require("./firebaseServiceAccount.json"); // Download from Firebase Console
+
+// Firebase Admin Initialization
+const serviceAccount = require("./firebaseServiceAccount.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  
 });
 const db = admin.firestore();
+
 // Middleware
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(express.json());
 app.use(
   session({
     secret: "your_secret_key",
@@ -25,7 +31,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Passport Google OAuth strategy
+// Passport Google OAuth
 passport.use(
   new GoogleStrategy(
     {
@@ -39,86 +45,63 @@ passport.use(
   )
 );
 
-passport.serializeUser((user, done) => {
-  done(null, user);
-});
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
-});
+// Gemini API setup
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Default Route
-app.get("/", (req, res) => {
-  res.send("Server is running. Use /auth/google to authenticate.");
-});
+// Gemini route
+app.post("/api/ask", async (req, res) => {
+  const { prompt } = req.body;
+  if (!prompt) return res.status(400).json({ error: "Prompt is required." });
 
-// Authentication Routes
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", {
-    successRedirect: "http://localhost:3000/dashboard",
-    failureRedirect: "http://localhost:3000/signin",
-  })
-);
-app.get("/api/videos", async (req, res) => {
   try {
-    const snapshot = await db.collection("notes").get();
-    const videos = snapshot.docs.map((doc) => doc.data().videoId);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
 
-    console.log("Fetched Video IDs:", videos); // ✅ Check if video IDs are fetched
-    res.json(videos);
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    res.json({ reply: text });
   } catch (error) {
-    console.error("Error fetching video IDs:", error); // ✅ Log errors if any
-    res.status(500).json({ error: "Failed to fetch video IDs" });
-  }
-});
-app.get("/api/videos", async (req, res) => {
-  try {
-    const snapshot = await db.collection("summaries").get();
-    const videos = snapshot.docs.map((doc) => doc.data().videoId);
-
-    console.log("Fetched Video IDs:", videos); // ✅ Check if video IDs are fetched
-    res.json(videos);
-  } catch (error) {
-    console.error("Error fetching video IDs:", error); // ✅ Log errors if any
-    res.status(500).json({ error: "Failed to fetch video IDs" });
+    console.error("❌ Gemini API Error:", error);
+    res.status(500).json({ error: "Gemini API failed", details: error.message });
   }
 });
 
+// Auth Routes
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+app.get("/auth/google/callback", passport.authenticate("google", {
+  successRedirect: "http://localhost:3000/dashboard",
+  failureRedirect: "http://localhost:3000/signin",
+}));
+app.get("/auth/user", (req, res) => res.json(req.user || null));
 
-
-// Backend logout route
+// Logout
 app.get("/logout", (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.error("Logout error:", err);
-      return res.status(500).json({ error: "Logout failed" });
-    }
-    req.session.destroy((err) => {
-      if (err) {
-        console.error("Session destroy error:", err);
-        return res.status(500).json({ error: "Error destroying session" });
-      }
-      res.clearCookie("connect.sid"); // Clear session cookie
+  req.logout(err => {
+    if (err) return res.status(500).json({ error: "Logout failed" });
+    req.session.destroy(err => {
+      if (err) return res.status(500).json({ error: "Error destroying session" });
+      res.clearCookie("connect.sid");
       res.status(200).json({ message: "Logged out successfully" });
     });
   });
 });
 
-app.get("/auth/user", (req, res) => {
-  res.json(req.user || null);
+// Firestore routes
+app.get("/api/videos", async (req, res) => {
+  try {
+    const snapshot = await db.collection("notes").get();
+    const videos = snapshot.docs.map(doc => doc.data().videoId);
+    res.json(videos);
+  } catch (error) {
+    console.error("Error fetching videos:", error);
+    res.status(500).json({ error: "Failed to fetch videos" });
+  }
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
-
+// Start server
+app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
 
 // const express = require("express");
 // const session = require("express-session");

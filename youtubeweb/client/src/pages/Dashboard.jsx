@@ -1,10 +1,116 @@
+// import React, { useEffect, useState } from "react";
+// import axios from "axios";
+// import Sidebar from "../components/Sidebar";
+// import ChatMessage from "../components/ChatMessage";
+// import ChatHistory from "../components/ChatHistory";
+// import "./Dashboard.css";
+
+// const Dashboard = () => {
+//   const [user, setUser] = useState(null);
+//   const [prompt, setPrompt] = useState("");
+//   const [messages, setMessages] = useState([]);
+//   const [history, setHistory] = useState([]);
+//   const [showHistory, setShowHistory] = useState(true);
+ 
+
+//   useEffect(() => {
+//     axios
+//       .get("http://localhost:5000/auth/user", { withCredentials: true })
+//       .then((res) => setUser(res.data))
+//       .catch(() => setUser(null));
+//   }, []);
+
+//   const sendMessage = async () => {
+//     if (!prompt.trim()) return;
+
+//     const updatedMessages = [...messages, { sender: "user", text: prompt }];
+//     setMessages(updatedMessages);
+//     setPrompt("");
+
+//     try {
+//       const res = await axios.post("http://localhost:5000/api/ask", { prompt });
+//       const reply = res.data.reply;
+//       setMessages([...updatedMessages, { sender: "bot", text: reply }]);
+//     } catch (err) {
+//       setMessages([...updatedMessages, { sender: "bot", text: "Error fetching response." }]);
+//     }
+//   };
+
+//   const saveChatToHistory = () => {
+//     if (messages.length > 0) {
+//       setHistory((prev) => [...prev, messages]);
+//       setMessages([]);
+//     }
+//   };
+
+//   const handleSelectHistory = (index) => {
+//     setMessages(history[index]);
+//   };
+
+//   if (!user) return <h2>Loading...</h2>;
+
+//   return (
+//     <div className="dashboard-wrapper">
+//       <Sidebar />
+
+//       <div className="main-content">
+//         <div className="toggle-history">
+//           <button onClick={() => setShowHistory(!showHistory)}>
+//             {showHistory ? "Hide" : "Show"} History
+//           </button>
+//         </div>
+
+//         {showHistory && (
+//           <div className="history-panel">
+//             <ChatHistory history={history} onSelect={handleSelectHistory} />
+//           </div>
+//         )}
+
+//         <div className="chat-container">
+//           <div className="chat-header">
+//             <h2>Hi {user.displayName} 👋</h2>
+//           </div>
+
+//           <div className="chat-messages">
+//             {messages.map((msg, index) => (
+//               <ChatMessage key={index} sender={msg.sender} text={msg.text} />
+//             ))}
+//           </div>
+
+//           <div className="chat-input">
+//             <input
+//               type="text"
+//               placeholder="Ask anything..."
+//               value={prompt}
+//               onChange={(e) => setPrompt(e.target.value)}
+//               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+//             />
+//             <button onClick={sendMessage}>Send</button>
+//             <button onClick={saveChatToHistory}>Save Chat</button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Dashboard;
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
+import ChatMessage from "../components/ChatMessage";
+import ChatHistory from "../components/ChatHistory";
 import "./Dashboard.css";
-import NoteTile from "../components/NoteTile";
+
 const Dashboard = () => {
   const [user, setUser] = useState(null);
+  const [prompt, setPrompt] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     axios
@@ -13,54 +119,105 @@ const Dashboard = () => {
       .catch(() => setUser(null));
   }, []);
 
-  const handleLogout = async () => {
+  const sendMessage = async () => {
+    if (!prompt.trim()) return;
+
+    const updatedMessages = [...messages, { sender: "user", text: prompt }];
+    setMessages(updatedMessages);
+    setPrompt("");
+    setIsTyping(true);
+
     try {
-      const response = await fetch("http://localhost:5000/logout", {
-        method: "GET",
-        credentials: "include", // Include cookies for session-based auth
-      });
-  
-      if (response.ok) {
-        
-        localStorage.removeItem("user");
-        window.location.href = "/"; // Redirect to login
-      } else {
-        const contentType = response.headers.get("Content-Type");
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          console.error("Failed to log out:", errorData.message);
-        } else {
-          console.error("Failed to log out: Received non-JSON response");
-        }
-      }
-    } catch (error) {
-      console.error("Error logging out:", error);
+      const res = await axios.post("http://localhost:5000/api/ask", { prompt });
+      const reply = res.data.reply;
+      setIsTyping(false);
+      setMessages([...updatedMessages, { sender: "bot", text: reply }]);
+    } catch (err) {
+      setIsTyping(false);
+      setMessages([...updatedMessages, { sender: "bot", text: "Error fetching response." }]);
     }
   };
-  
-  
-  
-  if (!user) {
-    return <h2>Loading...</h2>;
-  }
+
+  const saveChatToHistory = () => {
+    if (messages.length > 0) {
+      setHistory((prev) => [...prev, messages]);
+      setMessages([{ sender: "bot", text: "Chat saved! Starting new conversation." }]);
+    }
+  };
+
+  const deleteFromHistory = (index) => {
+    setHistory(history.filter((_, i) => i !== index));
+  };
+
+  const handleSelectHistory = (index) => {
+    setMessages(history[index]);
+    setShowHistory(false);
+  };
+
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+    document.body.classList.toggle("dark-mode");
+  };
+
+  if (!user) return <div className="loading">Loading...</div>;
 
   return (
-    // <div style={{ textAlign: "center", marginTop: "100px" }}>
-    //   <h1>Welcome, {user.displayName}</h1>
-    //   <img src={user.photos[0].value} alt="Profile" style={{ borderRadius: "50%" }} />
-    //   <br />
-    //   <button onClick={handleLogout} style={{ padding: "10px 20px", marginTop: "20px" }}>
-    //     Logout
-    //   </button>
-    // </div>
-    <div>
+    <div className={`dashboard-wrapper ${darkMode ? "dark" : ""}`}>
       <Sidebar />
-      <div className="username">
-        <h1>Welcome,{user.displayName}</h1>
-      </div>
-      
-    </div>
 
+      <div className="main-content">
+        <div className="toggle-history">
+          <button onClick={() => setShowHistory(!showHistory)}>
+            {showHistory ? "Hide" : "Show"} History
+          </button>
+          <button className="theme-toggle" onClick={toggleTheme}>
+            {darkMode ? "☀️" : "🌙"}
+          </button>
+        </div>
+
+        {showHistory && (
+          <div className="history-panel">
+            <ChatHistory 
+              history={history} 
+              onSelect={handleSelectHistory} 
+              onDelete={deleteFromHistory}
+            />
+          </div>
+        )}
+
+        <div className="chat-container">
+          <div className="chat-header">
+            <h2>Hi {user.displayName} 👋</h2>
+            <p className="welcome-text">How can I assist you today?</p>
+          </div>
+
+          <div className="chat-messages">
+            {messages.map((msg, index) => (
+              <ChatMessage key={index} sender={msg.sender} text={msg.text} />
+            ))}
+            {isTyping && (
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            )}
+          </div>
+
+          <div className="chat-input">
+            <input
+              type="text"
+              placeholder="Ask anything..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            />
+            <button onClick={sendMessage} className="send-button">Send</button>
+            <button onClick={saveChatToHistory} className="save-button">Save Chat</button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

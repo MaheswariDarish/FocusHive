@@ -44,10 +44,15 @@ const Sidebar = () => {
             <div className="head">
                 <p>FocusHive</p>
             </div>
+            <div className="menu-item" onClick={() => navigate("/dashboard")}>
+                <FaChartBar className="menu-icon" /> {/* Analytics Icon */}
+                <p className="menu-text">Dashboard</p>
+            </div>
             <div className="menu-item" onClick={() => navigate("/analytics")}>
                 <FaChartBar className="menu-icon" /> {/* Analytics Icon */}
                 <p className="menu-text">Analytics</p>
             </div>
+
             <div className="menu-item" onClick={() => navigate("/notes")}>
                 <FaFileAlt className="menu-icon" /> {/* Notes & Summaries Icon */}
                 <p className="menu-text">Notes & Summaries</p>
