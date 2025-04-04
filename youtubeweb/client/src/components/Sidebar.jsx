@@ -44,7 +44,7 @@ const Sidebar = () => {
             <div className="head">
                 <p>FocusHive</p>
             </div>
-            <div className="menu-item" onClick={() => navigate("/dashboard")}>
+            <div className="menu-item" onClick={() => navigate("/analytics")}>
                 <FaChartBar className="menu-icon" /> {/* Analytics Icon */}
                 <p className="menu-text">Analytics</p>
             </div>
