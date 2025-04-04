@@ -1,16 +1,116 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>YouTube Timer & History</title>
-  <link rel="stylesheet" href="popup.css">
+  <title>FocusHive</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 16px;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #dadce0;
+    }
+
+    .filter-input {
+      padding: 8px 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .filter-input:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #1a73e8;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .status-text {
+      font-size: 14px;
+      color: #5f6368;
+    }
+
+    .status-text.active {
+      color: #1a73e8;
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h2>Watch History</h2>
-      <button id="toggleTimer" class="toggle-button">Show Timer</button>
+    <div class="filter-section">
+      <input type="text" id="filterInput" class="filter-input" placeholder="Enter topic to filter videos...">
+      <div class="toggle-container">
+        <label class="toggle-switch">
+          <input type="checkbox" id="filterToggle">
+          <span class="slider"></span>
+        </label>
+        <span id="statusText" class="status-text">Content filtering disabled</span>
+      </div>
     </div>
-    <div id="watchHistory"></div>
   </div>
   <script src="popup.js"></script>
 </body>

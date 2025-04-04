@@ -53,3 +53,82 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
   });
+
+
+  document.addEventListener('DOMContentLoaded', function() {
+  chrome.storage.sync.get(['hideShorts', 'hideSuggested', 'hideComments'], function(result) {
+    document.getElementById('toggleShorts').checked = result.hideShorts || false;
+    document.getElementById('toggleSuggested').checked = result.hideSuggested || false;
+    document.getElementById('toggleComments').checked = result.hideComments || false;
+  });
+
+  document.getElementById('toggleShorts').addEventListener('change', function() {
+    chrome.storage.sync.set({ hideShorts: this.checked });
+  });
+
+  document.getElementById('toggleSuggested').addEventListener('change', function() {
+    chrome.storage.sync.set({ hideSuggested: this.checked });
+  });
+
+  document.getElementById('toggleComments').addEventListener('change', function() {
+    chrome.storage.sync.set({ hideComments: this.checked });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const filterInput = document.getElementById('filterInput');
+  const filterToggle = document.getElementById('filterToggle');
+  const statusText = document.getElementById('statusText');
+
+  // Load saved filter state
+  chrome.storage.sync.get(['isContentFilteringEnabled', 'filterTopic'], (data) => {
+    if (data.isContentFilteringEnabled) {
+      filterToggle.checked = true;
+      statusText.textContent = 'Content filtering enabled';
+      statusText.classList.add('active');
+    }
+    if (data.filterTopic) {
+      filterInput.value = data.filterTopic;
+    }
+  });
+
+  // Handle filter input changes
+  filterInput.addEventListener('input', () => {
+    const topic = filterInput.value.trim();
+    chrome.storage.sync.set({ filterTopic: topic });
+    
+    if (filterToggle.checked && topic) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]?.url?.includes('youtube.com')) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            action: 'updateFilter',
+            topic: topic
+          });
+        }
+      });
+    }
+  });
+
+  // Handle toggle changes
+  filterToggle.addEventListener('change', () => {
+    const isEnabled = filterToggle.checked;
+    const topic = filterInput.value.trim();
+    
+    chrome.storage.sync.set({ 
+      isContentFilteringEnabled: isEnabled,
+      filterTopic: topic
+    });
+
+    statusText.textContent = isEnabled ? 'Content filtering enabled' : 'Content filtering disabled';
+    statusText.classList.toggle('active', isEnabled);
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.url?.includes('youtube.com')) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: isEnabled ? 'enableFilter' : 'disableFilter',
+          topic: isEnabled ? topic : null
+        });
+      }
+    });
+  });
+});

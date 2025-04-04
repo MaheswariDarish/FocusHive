@@ -5,7 +5,7 @@
   width: 400px;
   height: 100vh;
   background: white;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   z-index: 9999;
@@ -212,4 +212,442 @@ button:disabled {
 
 .timer-toggle:hover {
   background: #ffffff44;
+}
+
+/* New styles for the Sign-In button */
+#google-sign-in {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #0073e6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+/* Dark mode video title styles */
+ytd-video-renderer #video-title,
+ytd-compact-video-renderer #video-title,
+ytd-rich-grid-video-renderer #video-title {
+  color: var(--yt-spec-text-primary) !important;
+}
+
+ytd-video-renderer #video-title:visited,
+ytd-compact-video-renderer #video-title:visited,
+ytd-rich-grid-video-renderer #video-title:visited {
+  color: var(--yt-spec-text-secondary) !important;
+}
+
+/* Ensure video titles are visible in dark mode */
+ytd-video-renderer #video-title-link,
+ytd-compact-video-renderer #video-title-link,
+ytd-rich-grid-video-renderer #video-title-link {
+  color: var(--yt-spec-text-primary) !important;
+}
+
+/* Handle hover states */
+ytd-video-renderer #video-title-link:hover,
+ytd-compact-video-renderer #video-title-link:hover,
+ytd-rich-grid-video-renderer #video-title-link:hover {
+  color: var(--yt-spec-text-primary) !important;
+  opacity: 0.9;
+}
+
+#yt-auth-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.auth-modal {
+  background: white;
+  border-radius: 12px;
+}
+
+#google-signin-btn {
+  background: #4285F4;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 8px 0;
+  width: 100%;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+#google-signin-btn:hover {
+  background: #3367d6;
+}
+
+#skip-auth-btn {
+  background: #f8f9fa;
+  border: 1px solid #dadce0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+#skip-auth-btn:hover {
+  background: #f1f3f4;
+}
+
+.auth-user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.auth-user-info img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#sign-out-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 8px;
+  width: 100%;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+#sign-out-btn:hover {
+  background: #c82333;
+}
+
+.auth-loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+#yt-timer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 8%;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+#yt-timer:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+}
+
+.timer-display {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1a73e8;
+  letter-spacing: 0.5px;
+}
+
+.timer-toggle {
+  background: #f8f9fa;
+  border: 1px solid #dadce0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #5f6368;
+  transition: all 0.2s ease;
+}
+
+.timer-toggle:hover {
+  background: #f1f3f4;
+  color: #202124;
+}
+
+#yt-unified-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  max-height: 80vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.panel-header {
+  padding: 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dadce0;
+}
+
+.panel-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+#video-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #202124;
+  margin: 0;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.panel-auth-button {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.panel-auth-button:hover {
+  background: #1557b0;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tab-button {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #5f6368;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  background: rgba(0,0,0,0.05);
+  color: #202124;
+}
+
+.tab-button.active {
+  background: #1a73e8;
+  color: white;
+}
+
+#close-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #5f6368;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+#close-panel:hover {
+  background: rgba(0,0,0,0.05);
+  color: #202124;
+}
+
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+#yt-notes-text {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  margin: 12px 0;
+  font-size: 14px;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+#yt-notes-text:focus {
+  outline: none;
+  border-color: #1a73e8;
+}
+
+#yt-save-note {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+#yt-save-note:hover {
+  background: #1557b0;
+}
+
+.note {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #dadce0;
+}
+
+.note-content-button {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.note-content-button button {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.note-content-button button:hover {
+  background: #1557b0;
+}
+
+.delete-note {
+  background: #dc3545 !important;
+}
+
+.delete-note:hover {
+  background: #c82333 !important;
+}
+
+#summary-text {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  margin: 12px 0;
+  font-size: 14px;
+  resize: vertical;
+  background: #f8f9fa;
+}
+
+#generate-summary {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+#generate-summary:hover {
+  background: #1557b0;
+}
+
+.mcq-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.mcq-controls button {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.mcq-controls button:hover {
+  background: #1557b0;
+}
+
+.mcq-controls button:disabled {
+  background: #dadce0;
+  cursor: not-allowed;
+}
+
+.mcq-question {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #dadce0;
+}
+
+.mcq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mcq-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.mcq-option:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.mcq-feedback {
+  margin-top: 12px;
+  padding: 8px;
+  border-radius: 4px;
+  font-weight: 500;
 }
