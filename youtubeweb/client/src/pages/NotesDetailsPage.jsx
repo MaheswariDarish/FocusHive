@@ -154,7 +154,7 @@ const NotesDetailsPage = ({ userId }) => {
                 </button>
             </div>
             <div className="notes-details-content">
-                <SummarySection summary={summary} onUpdateSummary={setSummary} />
+                <SummarySection userId={userId} videoId={videoId} />
                 <NotesSection
                     notes={notes}
                     videoId={videoId}
