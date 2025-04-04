@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebase";
-import { collection, query, where, getDocs, getDoc, setDoc, doc, updateDoc } from "firebase/firestore";
-import { onSnapshot } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { ArrowLeft } from "lucide-react";
 import SummarySection from "../components/SummarySection";
 import NotesSection from "../components/NotesSection";
@@ -14,7 +13,6 @@ const NotesDetailsPage = ({ userId }) => {
     const [videoTitle, setVideoTitle] = useState("Loading...");
     const [summary, setSummary] = useState("");
     const [notes, setNotes] = useState([]);
-    const [summaryDocId, setSummaryDocId] = useState(null);
 
     userId = "user123"; // Hardcoded for now
 
@@ -122,6 +120,26 @@ const NotesDetailsPage = ({ userId }) => {
         }
     };
 
+    // ✅ Export Notes to Google Docs
+    const handleExportToDocs = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/export-doc", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, videoId }),
+            });
+
+            const data = await response.json();
+            if (data.docLink) {
+                window.open(data.docLink, "_blank"); // Open the Google Doc
+            } else {
+                alert(data.error || "Export failed.");
+            }
+        } catch (error) {
+            console.error("Error exporting notes:", error);
+        }
+    };
+
     return (
         <div className="notes-details-page">
             <div className="notes-details-header">
@@ -130,6 +148,10 @@ const NotesDetailsPage = ({ userId }) => {
                     Back
                 </button>
                 <h1 className="video-title">{videoTitle}</h1>
+                {/* Export to Docs Button */}
+                <button className="export-button" onClick={handleExportToDocs}>
+                    Export to Google Docs
+                </button>
             </div>
             <div className="notes-details-content">
                 <SummarySection summary={summary} onUpdateSummary={setSummary} />
