@@ -9,7 +9,7 @@
   "permissions": ["storage", "scripting", "activeTab","tabs","identity","cookies"],
   "host_permissions": ["https://www.youtube.com/*","http://127.0.0.1:5000/*", "https://*.firebaseapp.com/*","https://*.googleapis.com/*","https://ytextension-500ff.web.app/*"],
   "oauth2": {
-    "client_id": "198767374497-l3ssv4j45oaocneuflrim5fup07g8beu.apps.googleusercontent.com",
+    "client_id": "322365975008-bjvj42ov25tceh4coifvm49kq7h4jfq5.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile"

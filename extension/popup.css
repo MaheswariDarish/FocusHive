@@ -289,6 +289,7 @@ ytd-rich-grid-video-renderer #video-title-link:hover {
 
 #skip-auth-btn {
   background: #f8f9fa;
+  color: #333;
   border: 1px solid #dadce0;
   padding: 10px 16px;
   border-radius: 8px;
@@ -299,7 +300,7 @@ ytd-rich-grid-video-renderer #video-title-link:hover {
 }
 
 #skip-auth-btn:hover {
-  background: #f1f3f4;
+  background: #3367d6;
 }
 
 .auth-user-info {
@@ -348,7 +349,7 @@ ytd-rich-grid-video-renderer #video-title-link:hover {
   top: 20px;
   right: 20px;
   width: 8%;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(248, 246, 246, 0.95);
   padding: 12px 20px;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -370,7 +371,7 @@ ytd-rich-grid-video-renderer #video-title-link:hover {
   font-family: 'Roboto Mono', monospace;
   font-size: 16px;
   font-weight: 500;
-  color: #1a73e8;
+  color: #424243;
   letter-spacing: 0.5px;
 }
 
@@ -378,6 +379,8 @@ ytd-rich-grid-video-renderer #video-title-link:hover {
   background: #f8f9fa;
   border: 1px solid #dadce0;
   padding: 6px 12px;
+  margin-left: 20%;
+  margin-right: 30%;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
@@ -650,4 +653,26 @@ ytd-rich-grid-video-renderer #video-title-link:hover {
   padding: 8px;
   border-radius: 4px;
   font-weight: 500;
+}
+
+.panel-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.panel-control-button {
+  background: #f8f9fa;
+  color: #1a73e8;
+  border: 1px solid #dadce0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.panel-control-button:hover {
+  background: #f1f3f4;
+  border-color: #1a73e8;
 }
