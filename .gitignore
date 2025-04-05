@@ -6,5 +6,6 @@ api/node_modules
 firebaseServiceAccount.json
 youtubeweb/server/node_modules
 */node_modules
+service-account.json
 
 firebase

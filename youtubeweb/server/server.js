@@ -1,21 +1,26 @@
-// server.js
-const express = require("express");
-const session = require("express-session");
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const cors = require("cors");
-const admin = require("firebase-admin");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-require("dotenv").config();
+import express from "express";
+import session from "express-session";
+import passport from "passport";
+import GoogleStrategy from "passport-google-oauth20";
+import cors from "cors";
+import admin from "firebase-admin";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
+import fs from "fs";
+import exportDocRoute from "./export.js";
+
+dotenv.config();
 
 const app = express();
 const PORT = 5000;
 
 // Firebase Admin Initialization
-const serviceAccount = require("./firebaseServiceAccount.json");
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+const serviceAccount = JSON.parse(fs.readFileSync("firebaseServiceAccount.json", "utf8"));
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
 const db = admin.firestore();
 
 // Middleware
@@ -31,9 +36,12 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Routes
+app.use("/", exportDocRoute);
+
 // Passport Google OAuth
 passport.use(
-  new GoogleStrategy(
+  new GoogleStrategy.Strategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -58,7 +66,6 @@ app.post("/api/ask", async (req, res) => {
 
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
-
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     res.json({ reply: text });
@@ -70,10 +77,14 @@ app.post("/api/ask", async (req, res) => {
 
 // Auth Routes
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-app.get("/auth/google/callback", passport.authenticate("google", {
-  successRedirect: "http://localhost:3000/dashboard",
-  failureRedirect: "http://localhost:3000/signin",
-}));
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    successRedirect: "http://localhost:3000/dashboard",
+    failureRedirect: "http://localhost:3000/signin",
+  })
+);
+
 app.get("/auth/user", (req, res) => res.json(req.user || null));
 
 // Logout
@@ -101,41 +112,4 @@ app.get("/api/videos", async (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
-
-// const express = require("express");
-// const session = require("express-session");
-// const passport = require("passport");
-// const cors = require("cors");
-// require("dotenv").config();
-// require("./services/passportConfig"); // Import Passport Config
-
-// const authRoutes = require("./routes/authRoutes");
-
-// const app = express();
-// const PORT = 5000;
-
-// // Middleware
-// app.use(cors({ origin: "http://localhost:3000", credentials: true }));
-// app.use(
-//   session({
-//     secret: "your_secret_key",
-//     resave: false,
-//     saveUninitialized: true,
-//   })
-// );
-// app.use(passport.initialize());
-// app.use(passport.session());
-
-// // Routes
-// app.use("/auth", authRoutes);
-
-// // Default Route
-// app.get("/", (req, res) => {
-//   res.send("Server is running. Use /auth/google to authenticate.");
-// });
-
-// // Start Server
-// app.listen(PORT, () => {
-//   console.log(`Server running at http://localhost:${PORT}`);
-// });
+app.listen(PORT, () => console.log(` Server running at http://localhost:${PORT}`));

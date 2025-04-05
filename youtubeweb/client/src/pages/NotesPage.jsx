@@ -19,11 +19,9 @@ const NotesPage = ({ userId }) => {
           .get("http://localhost:5000/auth/user", { withCredentials: true })
           .then((res) => setUser(res.data))
           .catch(() => setUser(null));
-      }, []);
-      userId=user?.id; // Use the user ID from the authenticated user
-      console.log(userId);
-    useEffect(() => {
-        if (!userId) {
+      }, []); 
+      useEffect(() => {
+        if (!user?.id) {
             setError("User ID is required");
             setLoading(false);
             return;
@@ -31,8 +29,8 @@ const NotesPage = ({ userId }) => {
 
         const fetchData = async () => {
             try {
-                const notesQuery = query(collection(db, "notes"), where("userId", "==", userId));
-                const summariesQuery = query(collection(db, "summaries"), where("userId", "==", userId));
+                const notesQuery = query(collection(db, "notes"), where("userId", "==", user.id));
+                const summariesQuery = query(collection(db, "summaries"), where("userId", "==", user.id));
 
                 const [notesSnapshot, summariesSnapshot] = await Promise.all([
                     getDocs(notesQuery),
@@ -74,7 +72,8 @@ const NotesPage = ({ userId }) => {
         };
 
         fetchData();
-    }, [userId]);
+    }, [user]);
+
 
     return (
         <div className="notes-page">
