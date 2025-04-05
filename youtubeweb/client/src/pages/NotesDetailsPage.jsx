@@ -135,7 +135,7 @@ const NotesDetailsPage = () => {
             const response = await fetch("http://localhost:5000/export-doc", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, videoId }),
+                body: JSON.stringify({ userId, videoId, videoTitle }),
             });
 
             const data = await response.json();

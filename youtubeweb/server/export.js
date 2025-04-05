@@ -13,7 +13,7 @@ const db = getFirestore();
 
 // Auth using service account
 const auth = new google.auth.GoogleAuth({
-  keyFile: "service-account.json", 
+  keyFile: "service-account.json",
   scopes: ["https://www.googleapis.com/auth/documents", "https://www.googleapis.com/auth/drive"],
 });
 const docs = google.docs({ version: "v1", auth });
@@ -21,8 +21,17 @@ const drive = google.drive({ version: "v3", auth });
 
 const router = express.Router();
 
+// Format timestamp to hh:mm:ss
+function formatTimestamp(seconds) {
+    const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
+    const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+    return `${h}:${m}:${s}`;
+  }
+  
+
 router.post("/export-doc", async (req, res) => {
-  const { userId, videoId } = req.body;
+  const { userId, videoId, videoTitle } = req.body;
 
   try {
     // 1. Fetch notes from Firestore
@@ -39,26 +48,29 @@ router.post("/export-doc", async (req, res) => {
     // 2. Create Google Doc
     const docMeta = await docs.documents.create({
       requestBody: {
-        title: `Notes for ${videoId}`,
+        title: videoTitle ||  `Notes for ${videoId}`,
       },
     });
 
     const documentId = docMeta.data.documentId;
 
-    // 3. Format and write content
-    const requests = [
-      {
-        insertText: {
-          location: { index: 1 },
-          text:
-            "Notes:\n\n" +
-            notes
-              .map((n, i) => `${i + 1}. [${n.timestamp || "00:00:00"}] ${n.content}`)
-              .join("\n") +
-            "\n",
-        },
-      },
-    ];
+   // 3. Format and write content
+const contentLines = notes.map((n, i) => {
+  const timestamp = n.timestamp || 0;
+  const formattedTime = formatTimestamp(timestamp);
+
+  return `${i + 1}. [${formattedTime}] ${n.content}`;
+});
+
+const requests = [
+  {
+    insertText: {
+      location: { index: 1 },
+      text: `${videoTitle}\n\n` + contentLines.join("\n") + "\n",
+    },
+  },
+];
+
 
     await docs.documents.batchUpdate({
       documentId,
@@ -77,7 +89,8 @@ router.post("/export-doc", async (req, res) => {
     const docLink = `https://docs.google.com/document/d/${documentId}/edit`;
     res.json({ docLink });
   } catch (err) {
-    console.error("Export error:", err);
+    console.error("Export error:", JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+
     res.status(500).json({ error: "Failed to export notes" });
   }
 });
