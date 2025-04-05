@@ -1010,24 +1010,34 @@ function displayMCQ(index) {
   // Video History Functions
   async function loadWatchTime() {
     try {
-        const headers = currentUser ? { 'Authorization': `Bearer ${currentUser.idToken}` } : {};
+      const headers = currentUser ? { 'Authorization': `Bearer ${currentUser.idToken}` } : {};
       const response = await fetch(`${apiUrl}/analytics/watch-time/${videoId}`, { headers });
-      
+  
+      const timerDisplay = timerElement.querySelector('.timer-display');
+  
       if (response.ok) {
         const data = await response.json();
-        if (data && data.watchTime !== undefined) {
-                // Only update accumulated time if it's less than the stored time
-                // This ensures we keep the highest watch time
-                if (data.watchTime > accumulatedTime) {
+  
+        if (data && typeof data.watchTime === "number") {
           accumulatedTime = data.watchTime;
-          timerElement.querySelector('.timer-display').textContent = formatTime(accumulatedTime);
+        } else {
+          // No prior watch time in DB
+          accumulatedTime = 0;
         }
-            }
+  
+        timerDisplay.textContent = formatTime(accumulatedTime);
+      } else {
+        // If request fails (e.g. guest or 404), just reset timer
+        accumulatedTime = 0;
+        timerDisplay.textContent = formatTime(accumulatedTime);
       }
     } catch (error) {
       console.error("Error loading watch time:", error);
+      accumulatedTime = 0;
+      timerElement.querySelector('.timer-display').textContent = formatTime(accumulatedTime);
     }
   }
+  
 
   async function saveVideoToHistory() {
     if (!currentUser) return;
