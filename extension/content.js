@@ -263,7 +263,7 @@ chrome.storage.local.get(['totalWatchTime'], (result) => {
     unifiedPanel.innerHTML = `
       <div class="panel-header">
             <div class="panel-header-top">
-        <h3 id="video-title">Loading...</h3>
+        <h3 id="video-title">Study Panel</h3>
                 <div class="panel-controls">
                     <button id="show-timer-btn" class="panel-control-button">Show Timer</button>
                     <button id="panel-auth-btn" class="panel-auth-button">${currentUser ? 'Sign Out' : 'Sign In'}</button>
