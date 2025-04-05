@@ -122,7 +122,7 @@ def generate_summary():
 
         # Send summary, userId, and videoId to the respective endpoint
         summary_data = {"userId": user_id, "videoId": video_id, "summary": response}
-        requests.post("http://127.0.0.1:3000/generate-summary", json=summary_data)
+        requests.post("http://127.0.0.1:5000/generate-summary", json=summary_data)
     except Exception as e:
         return jsonify({'error': f'Error generating summary: {str(e)}'}), 500
 

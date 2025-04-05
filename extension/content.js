@@ -272,8 +272,16 @@ function handleNavigation() {
         // Update video ID and load data
         const newVideoId = new URLSearchParams(window.location.search).get("v");
         if (newVideoId && newVideoId !== videoId) {
+            // Clear existing content before loading new data
+            clearPanelContent();
+            
+            // Update video ID
             videoId = newVideoId;
+            
+            // Update video title in panel
             fetchVideoDetails(videoId);
+            
+            // Load new video's data
             loadNotes();
             loadSummary();
             loadWatchTime();
@@ -287,6 +295,43 @@ function handleNavigation() {
     }
 }
 
+// Function to clear panel content
+function clearPanelContent() {
+    // Clear notes
+    const noteList = document.getElementById("note-list");
+    if (noteList) {
+        noteList.innerHTML = "<p>No notes yet. Add your first note below!</p>";
+    }
+    
+    // Clear notes textarea
+    const notesTextarea = document.getElementById("yt-notes-text");
+    if (notesTextarea) {
+        notesTextarea.value = "";
+    }
+    
+    // Clear summary
+    const summaryText = document.getElementById("summary-text");
+    if (summaryText) {
+        summaryText.value = "";
+    }
+    
+    // Clear MCQs
+    const mcqContainer = document.getElementById("mcq-container");
+    if (mcqContainer) {
+        mcqContainer.innerHTML = "";
+    }
+    
+    // Reset MCQ state
+    currentMCQIndex = 0;
+    mcqs = [];
+    
+    // Reset MCQ navigation buttons
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
+}
+
 // Initialize UI elements
 loadStyles();
 const timerElement = createTimerElement();
@@ -297,12 +342,17 @@ const authContainer = createAuthContainer();
 // Set initial visibility based on current page
 handleNavigation();
 
+// Setup video observer immediately
+setupVideoObserver();
+
 // Add URL change observer for non-click navigation
 const urlObserver = new MutationObserver(() => {
     const currentUrl = window.location.href;
     if (currentUrl !== lastUrl) {
         lastUrl = currentUrl;
         handleNavigation();
+        // Re-setup video observer when URL changes
+        setupVideoObserver();
     }
 });
 
@@ -890,22 +940,43 @@ document.getElementById('sign-out-btn')?.addEventListener('click', signOut);
 // Video player state observers
 function setupVideoObserver() {
     const video = document.querySelector('video');
-    if (!video) return;
+    if (!video) {
+        // If video element is not found, try again after a short delay
+        setTimeout(setupVideoObserver, 1000);
+        return;
+    }
 
-    video.addEventListener('play', () => {
+    // Remove any existing event listeners
+    video.removeEventListener('play', handlePlay);
+    video.removeEventListener('pause', handlePause);
+    video.removeEventListener('ended', handleEnded);
+
+    // Add new event listeners
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('ended', handleEnded);
+
+    // If video is already playing, start the timer
+    if (!video.paused) {
         isVideoPlaying = true;
         startTimer();
-    });
+    }
+}
 
-    video.addEventListener('pause', () => {
-        isVideoPlaying = false;
-        pauseTimer();
-    });
+// Separate event handler functions for better management
+function handlePlay() {
+    isVideoPlaying = true;
+    startTimer();
+}
 
-    video.addEventListener('ended', () => {
-        isVideoPlaying = false;
-        pauseTimer();
-    });
+function handlePause() {
+    isVideoPlaying = false;
+    pauseTimer();
+}
+
+function handleEnded() {
+    isVideoPlaying = false;
+    pauseTimer();
 }
 
 // Add beforeunload event listener to pause timer when leaving the page
