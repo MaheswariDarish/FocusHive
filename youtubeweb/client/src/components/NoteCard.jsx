@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Edit2, Trash2, Save, X } from "lucide-react";
 import "./NoteCard.css";
 
-const NoteCard = ({ note, videoId, onEdit, onDelete }) => {
+const NoteCard = ({userId, note, videoId, onEdit, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedText, setEditedText] = useState(note.text);
 

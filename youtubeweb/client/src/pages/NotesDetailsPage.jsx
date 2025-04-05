@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { db } from "../firebase";
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { ArrowLeft } from "lucide-react";
@@ -7,14 +8,21 @@ import SummarySection from "../components/SummarySection";
 import NotesSection from "../components/NotesSection";
 import "./NotesDetailsPage.css";
 
-const NotesDetailsPage = ({ userId }) => {
+const NotesDetailsPage = () => {
     const { videoId } = useParams();
     const navigate = useNavigate();
     const [videoTitle, setVideoTitle] = useState("Loading...");
     const [summary, setSummary] = useState("");
     const [notes, setNotes] = useState([]);
-
-    userId = "user123"; // Hardcoded for now
+    const [user, setUser] = useState(null);
+    useEffect(() => {
+       axios
+         .get("http://localhost:5000/auth/user", { withCredentials: true })
+         .then((res) => setUser(res.data))
+         .catch(() => setUser(null));
+     }, []); 
+    
+     const userId = user?.id;
 
     const formatTimestamp = (seconds) => {
         const hours = Math.floor(seconds / 3600);
@@ -42,9 +50,11 @@ const NotesDetailsPage = ({ userId }) => {
     }, [videoId]);
 
     useEffect(() => {
+        if (!user?.id) return;
         const docId = `${userId}_${videoId}`;
+        
         const noteRef = doc(db, "notes", docId);
-
+    
         const unsubscribe = onSnapshot(noteRef, (docSnap) => {
             if (docSnap.exists()) {
                 const notesData = docSnap.data().notes || [];
@@ -55,9 +65,9 @@ const NotesDetailsPage = ({ userId }) => {
                 })));
             }
         });
-
-        return () => unsubscribe(); // Cleanup listener on unmount
-    }, [videoId, userId]);
+    
+        return () => unsubscribe();
+    }, [videoId, user]);
 
     const handleCreateNote = async (text) => {
         try {
@@ -71,10 +81,9 @@ const NotesDetailsPage = ({ userId }) => {
                 }
             }
 
-            const docId = `${userId}_${videoId}`;
+            const docId = `${user.id}_${videoId}`;
             const noteRef = doc(db, "notes", docId);
             const docSnap = await getDoc(noteRef);
-
             let existingNotes = docSnap.exists() ? docSnap.data().notes || [] : [];
             existingNotes.push({ content: text, timestamp: timestampInSeconds });
 
@@ -126,7 +135,7 @@ const NotesDetailsPage = ({ userId }) => {
             const response = await fetch("http://localhost:5000/export-doc", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, videoId }),
+                body: JSON.stringify({ userId, videoId, videoTitle }),
             });
 
             const data = await response.json();
@@ -161,6 +170,7 @@ const NotesDetailsPage = ({ userId }) => {
                     onCreate={handleCreateNote}
                     onEdit={handleEditNote}
                     onDelete={handleDeleteNote}
+                    userId={userId}
                 />
             </div>
         </div>

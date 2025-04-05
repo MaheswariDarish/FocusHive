@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import NoteCard from "./NoteCard";
 import "./NotesSection.css";
 
-const NotesSection = ({ notes, videoId, onCreate, onEdit, onDelete }) => {
+const NotesSection = ({ userId, notes, videoId, onCreate, onEdit, onDelete }) => {
     const [newNote, setNewNote] = useState("");
     const [isCreating, setIsCreating] = useState(false);
 
@@ -58,6 +58,7 @@ const NotesSection = ({ notes, videoId, onCreate, onEdit, onDelete }) => {
                         videoId={videoId} // Pass videoId to NoteCard
                         onEdit={onEdit}
                         onDelete={onDelete}
+                        userId={userId}
                     />
                 ))}
             </div>

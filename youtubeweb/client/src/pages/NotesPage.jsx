@@ -5,6 +5,7 @@ import { Camera as VideoCamera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import NoteTile from "../components/NoteTile";
 import Sidebar from "../components/Sidebar";
+import axios from "axios";
 import "./NotesPage.css";
 
 const NotesPage = ({ userId }) => {
@@ -12,11 +13,15 @@ const NotesPage = ({ userId }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-
-    userId = "user123"; // Hardcoded for now
-
-    useEffect(() => {
-        if (!userId) {
+     const [user, setUser] = useState(null);
+     useEffect(() => {
+        axios
+          .get("http://localhost:5000/auth/user", { withCredentials: true })
+          .then((res) => setUser(res.data))
+          .catch(() => setUser(null));
+      }, []); 
+      useEffect(() => {
+        if (!user?.id) {
             setError("User ID is required");
             setLoading(false);
             return;
@@ -24,8 +29,8 @@ const NotesPage = ({ userId }) => {
 
         const fetchData = async () => {
             try {
-                const notesQuery = query(collection(db, "notes"), where("userId", "==", userId));
-                const summariesQuery = query(collection(db, "summaries"), where("userId", "==", userId));
+                const notesQuery = query(collection(db, "notes"), where("userId", "==", user.id));
+                const summariesQuery = query(collection(db, "summaries"), where("userId", "==", user.id));
 
                 const [notesSnapshot, summariesSnapshot] = await Promise.all([
                     getDocs(notesQuery),
@@ -67,7 +72,8 @@ const NotesPage = ({ userId }) => {
         };
 
         fetchData();
-    }, [userId]);
+    }, [user]);
+
 
     return (
         <div className="notes-page">

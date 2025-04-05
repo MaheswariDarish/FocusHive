@@ -7,24 +7,27 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { fetchVideoCategory } from "../api/youtubeapi";
 import "./Analytics.css";
 
+
 const WatchHistory = () => {
   const [watchHistory, setWatchHistory] = useState([]);
   const [categoryCount, setCategoryCount] = useState({});
   const [user, setUser] = useState(null);
 
-  // Fetch current logged-in user
+  // Fetch current logged-in user and normalize ID
   useEffect(() => {
     axios
       .get("http://localhost:5000/auth/user", { withCredentials: true })
-      .then((res) => setUser(res.data))
+      .then((res) => {
+        const u = res.data;
+        setUser({
+          ...u,
+          id: u.id || u.uid || null,
+        });
+      })
       .catch(() => setUser(null));
   }, []);
-//   useEffect(() => {
-//     setUser({ uid: "102750888703041297402"
-//  }); // Replace with your actual userId from Firestore
-//   }, []);
-console.log(user);
-  // Function to format Firestore timestamp to DD-MM-YYYY
+
+  // Format Firestore timestamp to DD-MM-YYYY
   const formatDate = (timestamp) => {
     if (timestamp?.seconds) {
       const date = new Date(timestamp.seconds * 1000);
@@ -36,10 +39,10 @@ console.log(user);
   // Fetch user-specific watch history
   useEffect(() => {
     const fetchWatchHistory = async () => {
-      if (!user || !user.uid) return;
+      if (!user || !user.id) return;
 
       try {
-        const q = query(collection(db, "analytics"), where("userId", "==", user.uid));
+        const q = query(collection(db, "analytics"), where("userId", "==", user.id));
         const querySnapshot = await getDocs(q);
         let lastValidDate = "01-01-2024";
 
@@ -93,6 +96,9 @@ console.log(user);
     setCategoryCount(countCategories);
   }, [watchHistory]);
 
+  // While user data is loading
+  if (user === null) return <div className="watch-container">Loading...</div>;
+
   return (
     <div className="watch-container">
       {/* Sidebar */}
@@ -105,7 +111,7 @@ console.log(user);
           <h2>Watch History</h2>
           <div className="history-list">
             {watchHistory.length === 0 ? (
-              <p className="empty-history-message">Nothing here. Go watch some videos!</p>
+              <p className="empty-history-message">Nothing here. Go watch some videos! {user.id}</p>
             ) : (
               watchHistory.map((video) => (
                 <div key={video.id} className="history-item">
