@@ -17,7 +17,7 @@ CORS(app)  # This will allow all origins. You can also restrict to specific orig
 # Set up Gemini API
 os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
 genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
-model = genai.GenerativeModel("models/gemini-1.5-pro")
+model = genai.GenerativeModel("models/gemini-1.5-flash")
 
 # Cache for transcripts
 transcript_cache = {}
@@ -105,6 +105,7 @@ def generate_mcqs():
 def generate_summary():
     data = request.get_json()
     video_id = data.get('video_id')
+    keywords = data.get('keywords', [])  # Get keywords from request
     user_id = "user123"
 
     if not video_id:
@@ -116,12 +117,32 @@ def generate_summary():
         return jsonify({'error': f'Error fetching transcript: {str(e)}'}), 400
 
     try:
-        prompt = f"Generate a summary from this transcript: {transcript_text}"
+        if keywords and len(keywords) > 0:
+            # Create a focused prompt for keyword-based summarization
+            keywords_str = ", ".join(keywords)
+            prompt = f"""Summarize the transcript below with a focus on these keywords: {keywords_str}.
+
+                         - For each keyword, explain its context and relevance.
+                         - If keywords are related, mention how.
+                         - If a keyword is missing, note: "[keyword] not found."
+                         - If none are found, give a general summary instead.
+
+                        Transcript:
+                           {transcript_text}"""
+        else:
+            # Use the original prompt for general summarization
+            prompt = f"Summarize the transcript clearly and concisely. Include key concepts, examples, and explanations.Transcript: {transcript_text}"
+
         response = model.generate_content(prompt).text.strip()
         print("summary:", response)
 
         # Send summary, userId, and videoId to the respective endpoint
-        summary_data = {"userId": user_id, "videoId": video_id, "summary": response}
+        summary_data = {
+            "userId": user_id, 
+            "videoId": video_id, 
+            "summary": response,
+            "keywords": keywords  # Include keywords in the saved data
+        }
         requests.post("http://127.0.0.1:5000/generate-summary", json=summary_data)
     except Exception as e:
         return jsonify({'error': f'Error generating summary: {str(e)}'}), 500

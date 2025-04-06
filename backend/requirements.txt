@@ -2,5 +2,5 @@ Flask
 google-generativeai
 youtube-transcript-api
 flask-cors
-
+pytube
 
