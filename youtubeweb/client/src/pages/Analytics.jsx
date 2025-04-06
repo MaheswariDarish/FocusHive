@@ -80,6 +80,13 @@ const WatchHistory = () => {
     setWatchHistory((prev) => prev.filter((video) => video.id !== id));
   };
 
+  const formatDuration = (seconds) => {
+    if (!seconds) return "0s";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs}s`;
+  };
+
   if (!user) return <div className="watch-container">Loading...</div>;
 
   return (
@@ -125,7 +132,11 @@ const WatchHistory = () => {
                       </div>
                       <div className="watch-analytics-video-content">
                         <h3>{video.title}</h3>
-                        <span className="watch-analytics-watch-time">{video.lastWatched}</span>
+                        <div className="watch-analytics-meta-row">
+  <span className="watch-analytics-watch-time">{video.lastWatched}</span>
+  <span className="watch-analytics-duration">{formatDuration(video.watchTime)}</span>
+</div>
+
                       </div>
                     </div>
                   </div>
