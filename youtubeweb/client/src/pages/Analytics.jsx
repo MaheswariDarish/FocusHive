@@ -7,144 +7,149 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { fetchVideoCategory } from "../api/youtubeapi";
 import "./Analytics.css";
 
-
 const WatchHistory = () => {
   const [watchHistory, setWatchHistory] = useState([]);
-  const [categoryCount, setCategoryCount] = useState({});
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  });
   const [user, setUser] = useState(null);
 
-  // Fetch current logged-in user and normalize ID
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/auth/user", { withCredentials: true })
-      .then((res) => {
-        const u = res.data;
-        setUser({
-          ...u,
-          id: u.id || u.uid || null,
-        });
-      })
-      .catch(() => setUser(null));
-  }, []);
-
-  // Format Firestore timestamp to DD-MM-YYYY
-  const formatDate = (timestamp) => {
-    if (timestamp?.seconds) {
-      const date = new Date(timestamp.seconds * 1000);
-      return date.toLocaleDateString("en-GB");
-    }
-    return null;
-  };
-
-  // Fetch user-specific watch history
-  useEffect(() => {
-    const fetchWatchHistory = async () => {
-      if (!user || !user.id) return;
-
+    const fetchUserAndHistory = async () => {
       try {
-        const q = query(collection(db, "analytics"), where("userId", "==", user.id));
+        const res = await axios.get("http://localhost:5000/auth/user", {
+          withCredentials: true,
+        });
+
+        const u = res.data;
+        const userId = u.id || u.uid;
+        setUser({ ...u, id: userId });
+
+        const q = query(collection(db, "analytics"), where("userId", "==", userId));
         const querySnapshot = await getDocs(q);
-        let lastValidDate = "01-01-2024";
 
-        const data = querySnapshot.docs.map((doc) => {
-          const docData = doc.data();
-          let formattedDate = formatDate(docData.lastWatched) || lastValidDate;
+        const data = await Promise.all(
+          querySnapshot.docs.map(async (doc) => {
+            const docData = doc.data();
+            const rawDate = docData.lastWatched?.seconds
+              ? new Date(docData.lastWatched.seconds * 1000)
+              : new Date("2024-01-01");
 
-          if (formattedDate) lastValidDate = formattedDate;
+            const category = await fetchVideoCategory(docData.videoId);
 
-          return {
-            id: doc.id,
-            ...docData,
-            lastWatched: formattedDate,
-          };
-        });
-
-        data.sort((a, b) => {
-          return (
-            new Date(b.lastWatched.split("-").reverse().join("-")) -
-            new Date(a.lastWatched.split("-").reverse().join("-"))
-          );
-        });
-
-        const updatedData = await Promise.all(
-          data.map(async (video) => {
-            const category = await fetchVideoCategory(video.videoId);
-            return { ...video, category };
+            return {
+              id: doc.id,
+              ...docData,
+              category,
+              lastWatched: rawDate.toLocaleDateString("en-GB"),
+              rawDate,
+            };
           })
         );
 
-        setWatchHistory(updatedData);
-      } catch (error) {
-        console.error("Error fetching watch history:", error);
+        data.sort((a, b) => b.rawDate - a.rawDate);
+        setWatchHistory(data);
+      } catch (err) {
+        console.error("Error fetching user or history", err);
       }
     };
 
-    fetchWatchHistory();
-  }, [user]);
+    fetchUserAndHistory();
+  }, []);
 
-  // Handle delete
+  const filteredVideos = watchHistory.filter((video) => {
+    const selected = new Date(selectedDate);
+    const vDate = video.rawDate;
+    return (
+      vDate.getFullYear() === selected.getFullYear() &&
+      vDate.getMonth() === selected.getMonth() &&
+      vDate.getDate() === selected.getDate()
+    );
+  });
+
+  const totalSeconds = filteredVideos.reduce((acc, v) => acc + (v.watchTime || 0), 0);
+  const totalMinutes = Math.floor(totalSeconds / 60);
+
+  const categoryCount = filteredVideos.reduce((acc, video) => {
+    acc[video.category] = (acc[video.category] || 0) + 1;
+    return acc;
+  }, {});
+
   const handleCloseEditForm = (id) => {
-    setWatchHistory(watchHistory.filter((video) => video.id !== id));
+    setWatchHistory((prev) => prev.filter((video) => video.id !== id));
   };
 
-  // Count categories
-  useEffect(() => {
-    const countCategories = watchHistory.reduce((acc, video) => {
-      acc[video.category] = (acc[video.category] || 0) + 1;
-      return acc;
-    }, {});
-    setCategoryCount(countCategories);
-  }, [watchHistory]);
-
-  // While user data is loading
-  if (user === null) return <div className="watch-container">Loading...</div>;
+  if (!user) return <div className="watch-container">Loading...</div>;
 
   return (
-    <div className="watch-container">
-      {/* Sidebar */}
+    <div className="watch-analytics-container">
       <Sidebar />
-
-      {/* Main Content */}
-      <div className="watch-history-container">
-        {/* Watch History */}
-        <div className="history-section">
-          <h2>Watch History</h2>
-          <div className="history-list">
-            {watchHistory.length === 0 ? (
-              <p className="empty-history-message">Nothing here. Go watch some videos! {user.id}</p>
-            ) : (
-              watchHistory.map((video) => (
-                <div key={video.id} className="history-item">
-                  <FaTimes className="close-icon" onClick={() => handleCloseEditForm(video.id)} />
-                  <div className="video-info">
-                    <h3>{video.title}</h3>
-                    <p className="watch-time">{video.lastWatched}</p>
-                    <a href={video.url} target="_blank" rel="noopener noreferrer">
-                      <FaYoutube className="youtube-icon" />
-                    </a>
-                  </div>
-                </div>
-              ))
-            )}
+      <div className="watch-analytics-main">
+        <div className="watch-analytics-header">
+          <div className="watch-analytics-date-picker">
+            <label htmlFor="date">Select Date:</label>
+            <input
+              type="date"
+              id="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+          </div>
+          <div className="watch-analytics-total-time">
+            <strong>Total Time:</strong>{" "}
+            {filteredVideos.length === 0 ? "Nothing to see here" : `${totalMinutes} mins`}
           </div>
         </div>
 
-        {/* Category Section */}
-        <div className="category-section">
-          <h2>Category</h2>
-          <div className="category-list">
-            {Object.entries(categoryCount).map(([category, count]) => (
-              <div key={category} className="category-item">
-                <span className="category-name">{category}</span>
-                <div className="progress-bar">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${count * 25}%`, backgroundColor: "#192524" }}
-                  ></div>
+        <div className="watch-analytics-grid">
+          <div className="watch-analytics-history">
+            <h2>Watch History</h2>
+            <div className="watch-analytics-history-list">
+              {filteredVideos.length === 0 ? (
+                <p className="watch-analytics-empty-message">
+                  Nothing here. Go watch some videos!
+                </p>
+              ) : (
+                filteredVideos.map((video) => (
+                  <div key={video.id} className="watch-analytics-history-item">
+                    <FaTimes
+                      className="watch-analytics-close-icon"
+                      onClick={() => handleCloseEditForm(video.id)}
+                    />
+                    <div className="watch-analytics-video-main">
+                      <div className="watch-analytics-video-left">
+                        <a href={video.url} target="_blank" rel="noopener noreferrer">
+                          <FaYoutube className="watch-analytics-youtube-icon" />
+                        </a>
+                      </div>
+                      <div className="watch-analytics-video-content">
+                        <h3>{video.title}</h3>
+                        <span className="watch-analytics-watch-time">{video.lastWatched}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="watch-analytics-category">
+            <h2>Category</h2>
+            <div className="watch-analytics-category-list">
+              {Object.entries(categoryCount).map(([category, count]) => (
+                <div key={category} className="watch-analytics-category-item">
+                  <span className="watch-analytics-category-name">{category}</span>
+                  <div className="watch-analytics-progress-bar">
+                    <div
+                      className="watch-analytics-progress-fill"
+                      style={{ width: `${count * 25}%` }}
+                    />
+                  </div>
+                  <span className="watch-analytics-category-count">{count}</span>
                 </div>
-                <span className="category-count">{count}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

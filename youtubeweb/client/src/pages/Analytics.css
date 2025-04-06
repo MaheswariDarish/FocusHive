@@ -1,274 +1,252 @@
-/* General Container */
-.watch-container {
+.watch-analytics-container {
     display: flex;
-    margin-left: 280px;
-    height: 120vh;
-    background: #f5f5f500;
-    color: #333;
-    font-family: 'Arial', sans-serif;
-}
-/* .video-thumbnail{
-    width: 60px;
-} */
-/* Dark Mode */
-/* .dark-mode {
-    background: #121212;
-    color: #ffffff;
-} */
-
-/* Sidebar */
-.sidebar {
-    width: 250px;
-    background: #2c3e50;
-    padding: 20px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-/* Main Content */
-.watch-history-container {
-    flex-grow: 1;
-    display: flex;
-    padding: 20px;
-    gap: 20px;
-   
-}
-
-/* Watch History Section */
-.history-section {
-    flex: 2;
-    background: #ffffff0e;
-    padding: 20px;
-    /* border-radius: 10px; */
-    min-height: 40vh;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.389);
-}
-
-
-/* Watch History List */
-.history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* Individual History Item */
-.history-item {
-    display: flex;
-    align-items: center;
-    position: relative;
-    background: #1925240b;
-    padding: 10px;
-    padding-left: 20px;
-    border-radius: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out;
-}
-
-
-
-.youtube-icon {
-    color: red;
-    font-size: 20px;
-    margin-left: 10px;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.youtube-icon:hover {
-    color: #ff0000;
-}
-
-
-/* Video Thumbnail */
-.video-thumbnail {
-    width: 80px;
-    height: 120px;
-    border-radius: 5px;
-    object-fit: cover;
-    margin-right: 15px;
-}
-
-/* Video Info */
-.video-info h3 {
-    font-size: 18px;
-    margin: 0;
-    color: #333;
-}
-
-
-
-.video-info .watch-time {
-    font-size: 14px;
-    color: #777;
-    margin-top: 5px;
-}
-
-
-
-/* Delete Button */
-
-
-
-.close-icon {
-    color: #192524;
-    cursor: pointer;
-    font-size: 16px;
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    transition: color 0.2s ease-in-out;
-  }
-  
-  .close-icon:hover {
-    color: #040404af;
-  }
-  
-
-/* Dark Mode - Delete Button */
-
-
-/* Category Section */
-.category-section {
-    flex: 1;
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* .dark-mode .category-section {
-    background: #1e1e1e;
-    color: white;
-} */
-
-/* Category List */
-.category-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Category Item */
-.category-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    background: #d3d3d3;
-    border-radius: 15px;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.dark-mode .category-item {
-    background: #333;
-}
-
-/* Progress Bar */
-.progress-bar {
-    flex: 1;
-    height: 8px;
-    background: #ccc;
-    border-radius: 5px;
-    margin: 0 10px;
-    overflow: hidden;
-}
-
-.dark-mode .progress-bar {
-    background: #444;
-}
-
-/* Progress Fill */
-.progress-fill {
-    height: 100%;
-    background: #4caf50;
-    border-radius: 5px;
-    transition: width 0.5s ease-in-out;
-}
-
-/* Toggle Button */
-.toggle-theme {
-    margin: 10px;
-    padding: 8px 15px;
-    background: #4caf50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    border-radius: 5px;
-}
-
-.toggle-theme:hover {
-    background: #388e3c;
-}
-/* Watch History Section */
-.history-section {
-    flex: 2;
-    background: #ffffff63;
-    padding: 20px;
-    border-radius: 10px;
     min-height: 100vh;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.282);
+    background-color: #fdfdfd;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: #222;
+  }
+  
+  .watch-analytics-main {
+    margin-left: 280px;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    /* margin: auto; */
-}
-
-/* Scrollable Watch History List */
-.history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    max-height: 500px;  /* Set a max height */
-    overflow-y: auto;  /* Enable vertical scrolling */
-    padding-right: 10px;
-}
-
-/* Custom Scrollbar for Watch History */
-.history-list::-webkit-scrollbar {
-    width: 8px; /* Width of scrollbar */
-}
-
-.history-list::-webkit-scrollbar-track {
-    background: #e0e0e0; /* Track color */
-    border-radius: 10px;
-}
-
-.history-list::-webkit-scrollbar-thumb {
-    background: #1925243b; /* Scrollbar color */
-    border-radius: 10px;
-}
-
-/* .history-list::-webkit-scrollbar-thumb:hover {
-    background: #1925248f;
-} */
-
-
-/* Bar Chart Section */
-.chart-section {
-    grid-column: span 2;
-    background: white;
+    box-sizing: border-box;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .watch-analytics-header {
+    position: sticky;
+    top: 0;
+    margin-left:10px ;
+    background-color: #fff;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    max-width: 30%;
+    border-bottom: 1px solid #eee;
   }
   
-  .chart-section h2 {
-    margin-bottom: 20px;
+  .watch-analytics-date-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   
-  canvas {
-width: 30%;
-    height: 400px !important;
+  .watch-analytics-date-picker input[type="date"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
-  .bar-chart .chartjs-render-monitor {
-    background:#192524; /* Blue gradient */
-    border-radius: 5px;
+  
+  .watch-analytics-grid {
+    display: flex;
+    gap: 30px;
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
   }
+  
+  .watch-analytics-history,
+  .watch-analytics-category {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+    max-height: 100%;
+    overflow-y: auto;
+  }
+  
+  .watch-analytics-history {
+    flex: 2;
+  }
+  
+  .watch-analytics-category {
+    flex: 1;
+  }
+  
+  .watch-analytics-history-item {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    padding: 12px 16px;
+    border-radius: 8px;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  
+  .watch-analytics-video-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    width: 100%;
+  }
+  
+  .watch-analytics-video-left {
+    margin-top: 4px;
+  }
+  
+  .watch-analytics-video-content {
+    flex: 1;
+  }
+  
+  .watch-analytics-video-content h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+  }
+  
+  .watch-analytics-watch-time {
+    font-size: 12px;
+    color: #777;
+  }
+  
+  .watch-analytics-youtube-icon {
+    color: #ff0000;
+    font-size: 20px;
+  }
+  
+  .watch-analytics-close-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+    color: #999;
+  }
+  
+  .watch-analytics-close-icon:hover {
+    color: #000;
+  }
+  
+  .watch-analytics-category-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .watch-analytics-progress-bar {
+    flex: 2;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .watch-analytics-progress-fill {
+    height: 100%;
+    background-color: #192524;
+    transition: width 0.3s ease-in-out;
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 768px) {
+    .watch-analytics-grid {
+      flex-direction: column;
+    }
+  
+    .watch-analytics-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }
+  
+  /* Ensure the sidebar doesn't overlap the fixed header */
+.watch-analytics-main {
+  margin-left: 270px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 270px; /* same as sidebar */
+  right: 0;
+  z-index: 1000;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.watch-analytics-content {
+  margin-top: 90px; /* height of the fixed header */
+  overflow-y: auto;
+  padding: 20px;
+  height: calc(100vh - 90px);
+}
+
+/* Compact history card */
+.watch-analytics-history-item {
+  background-color: #f1f3f5;
+  padding: 12px 16px;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.watch-analytics-video-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.watch-analytics-video-info h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.watch-analytics-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.watch-analytics-youtube-icon {
+  color: #ff0000;
+  font-size: 18px;
+}
+
+.watch-analytics-watch-time {
+  font-size: 13px;
+  color: #555;
+  margin-left: auto;
+}
+
+.yt-icon-link {
+  display: flex;
+  align-items: center;
+}
+
+.watch-analytics-close-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  cursor: pointer;
+  color: #888;
+}
+
+.watch-analytics-close-icon:hover {
+  color: #000;
+}
