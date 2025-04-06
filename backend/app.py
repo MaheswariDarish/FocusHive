@@ -55,10 +55,12 @@ def format_mcqs(input_string):
 
     return json.dumps({"mcqs": formatted_mcqs}, indent=2)
 
-def fetch_transcript(video_id):
+def fetch_transcript(video_id,currentTime=None):
     if video_id in transcript_cache:
         return transcript_cache[video_id]
     transcript = YouTubeTranscriptApi.get_transcript(video_id)
+    if currentTime is not None:
+        transcript = [entry for entry in transcript if entry['start'] <= currentTime]
     transcript_text = " ".join([entry['text'] for entry in transcript])
     transcript_cache[video_id] = transcript_text
     return transcript_text
@@ -67,12 +69,13 @@ def fetch_transcript(video_id):
 def generate_mcqs():
     data = request.get_json()
     video_id = data.get('video_id')
+    currentTime=data.get('currentTime')
 
     if not video_id:
         return jsonify({'error': 'No video ID provided'}), 400
 
     try:
-        transcript_text = fetch_transcript(video_id)
+        transcript_text = fetch_transcript(video_id,currentTime)
     except Exception as e:
         return jsonify({'error': f'Error fetching transcript: {str(e)}'}), 400
 

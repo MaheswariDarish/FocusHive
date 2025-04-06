@@ -850,13 +850,15 @@ let currentMCQIndex = 0;
 let mcqs = [];
 
 document.getElementById("generate-mcq").addEventListener("click", async () => {
+    const player = document.querySelector("video");
+    const currentTime = Math.floor(player.currentTime);
     try {
         const response = await fetch(`${flaskApiUrl}/generate_mcqs`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ video_id: videoId }),
+            body: JSON.stringify({ video_id: videoId, currentTime:currentTime }),
         });
 
         const data = await response.json();
