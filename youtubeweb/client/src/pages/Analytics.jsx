@@ -69,7 +69,7 @@ const WatchHistory = () => {
   });
 
   const totalSeconds = filteredVideos.reduce((acc, v) => acc + (v.watchTime || 0), 0);
-  const totalMinutes = Math.floor(totalSeconds / 60);
+  
 
   const categoryCount = filteredVideos.reduce((acc, video) => {
     acc[video.category] = (acc[video.category] || 0) + 1;
@@ -82,10 +82,18 @@ const WatchHistory = () => {
 
   const formatDuration = (seconds) => {
     if (!seconds) return "0s";
-    const mins = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${mins}m ${secs}s`;
+  
+    let result = "";
+    if (hours > 0) result += `${hours}h `;
+    if (mins > 0 || hours > 0) result += `${mins}m `;
+    result += `${secs}s`;
+  
+    return result.trim();
   };
+  const totalMinutes = formatDuration(totalSeconds);
 
   if (!user) return <div className="watch-container">Loading...</div>;
 
@@ -105,7 +113,7 @@ const WatchHistory = () => {
           </div>
           <div className="watch-analytics-total-time">
             <strong>Total Time:</strong>{" "}
-            {filteredVideos.length === 0 ? "Nothing to see here" : `${totalMinutes} mins`}
+            {filteredVideos.length === 0 ? "Nothing to see here" : `${totalMinutes} `}
           </div>
         </div>
 
