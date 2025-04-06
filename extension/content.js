@@ -465,6 +465,7 @@ const createAuthContainer = () => {
                 </div>
             </div>
             <button id="sign-out-btn">Sign out</button>
+            <button id="skip-signout-btn">Stay signed in</button>
         </div>
     ` : `
         <div class="auth-modal">
@@ -710,10 +711,14 @@ const handleGoogleSignIn = () => {
                             </div>
                         </div>
                         <button id="sign-out-btn">Sign out</button>
+                        <button id="skip-signout-btn">Stay signed in</button>
                     </div>
                 `;
                 
                 document.getElementById('sign-out-btn').addEventListener('click', signOut);
+                document.getElementById('skip-signout-btn')?.addEventListener('click', () => {
+                  authContainer.style.display = 'none';
+              });
                 
                 // Reload user-specific data
                 loadNotes();
@@ -1112,6 +1117,9 @@ document.getElementById('skip-auth-btn')?.addEventListener('click', () => {
     authContainer.style.display = 'none';
 });
 document.getElementById('sign-out-btn')?.addEventListener('click', signOut);
+document.getElementById('skip-signout-btn')?.addEventListener('click', () => {
+  authContainer.style.display = 'none';
+});
 
 // Video player state observers
 function setupVideoObserver() {
