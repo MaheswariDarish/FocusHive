@@ -99,74 +99,66 @@ chrome.storage.sync.get(['isContentFilteringEnabled', 'filterTopic'], (data) => 
 
 
 //ui-manipulation
-// Function to hide elements based on stored settings
 function hideElements() {
-  chrome.storage.sync.get(['hideShorts', 'hideSuggested', 'hideComments'], function(result) {
-    if (result.hideShorts) {
-      let guideEntries = document.querySelectorAll('ytd-mini-guide-entry-renderer');
-      let shortsTab = Array.from(guideEntries).find(entry => entry.textContent.includes('Shorts'));
-      if (shortsTab) {
-        shortsTab.style.display = 'none';
-      } else {
-        console.log('Shorts tab not found with the current selector');
-      }
-    } else {
-      // Unhide Shorts tab if setting is disabled
-      let guideEntries = document.querySelectorAll('ytd-mini-guide-entry-renderer');
-      let shortsTab = Array.from(guideEntries).find(entry => entry.textContent.includes('Shorts'));
-      if (shortsTab) {
-        shortsTab.style.display = '';
-      }
-    }
+  chrome.storage.sync.get(['hideShorts', 'hideSuggested', 'hideComments'], function (result) {
+    
+    // ====== HIDE SHORTS TAB IN SIDEBAR ======
+    const guideEntries = document.querySelectorAll('ytd-mini-guide-entry-renderer');
+    const shortsTab = Array.from(guideEntries).find(entry => entry.textContent.includes('Shorts'));
+    if (shortsTab) shortsTab.style.display = result.hideShorts ? 'none' : '';
 
-    if (result.hideSuggested) {
-      let suggestedVideos = document.querySelector('#related');
-      if (suggestedVideos) {
-        suggestedVideos.style.display = 'none';
-      } else {
-        console.log('Suggested videos section not found');
+    // ====== HIDE SHORTS SHELF ON HOMEPAGE ======
+    const shelves = document.querySelectorAll('ytd-rich-shelf-renderer');
+    shelves.forEach(shelf => {
+      const title = shelf.querySelector('h2');
+      if (title && title.textContent.toLowerCase().includes('shorts')) {
+        shelf.style.display = result.hideShorts ? 'none' : '';
       }
-    } else {
-      // Unhide Suggested Videos section if setting is disabled
-      let suggestedVideos = document.querySelector('#related');
-      if (suggestedVideos) {
-        suggestedVideos.style.display = '';
-      }
-    }
+    });
 
-    if (result.hideComments) {
-      let commentsSection = document.querySelector('#comments');
-      if (commentsSection) {
-        commentsSection.style.display = 'none';
+    // ====== HIDE SHORTS CAROUSELS IN SEARCH RESULTS ======
+    const reelShelves = document.querySelectorAll('ytd-reel-shelf-renderer');
+    reelShelves.forEach(shelf => {
+      shelf.style.display = result.hideShorts ? 'none' : '';
+    });
+
+    // ====== HIDE INDIVIDUAL SHORTS VIDEOS BY URL ======
+    const allVideoTiles = document.querySelectorAll('ytd-grid-video-renderer, ytd-video-renderer, ytd-rich-grid-media');
+    allVideoTiles.forEach(tile => {
+      const link = tile.querySelector('a#thumbnail');
+      const badge = tile.querySelector('ytd-thumbnail-overlay-time-status-renderer');
+      const isShortsByUrl = link && link.href.includes('/shorts/');
+      const isShortsByBadge = badge && badge.innerText.trim() === 'SHORTS';
+
+      if (result.hideShorts && (isShortsByUrl || isShortsByBadge)) {
+        tile.style.display = 'none';
       } else {
-        console.log('Comments section not found');
+        tile.style.display = '';
       }
-    } else {
-      // Unhide Comments section if setting is disabled
-      let commentsSection = document.querySelector('#comments');
-      if (commentsSection) {
-        commentsSection.style.display = '';
-      }
-    }
+    });
+
+    // ====== HIDE SUGGESTED VIDEOS ======
+    const suggested = document.querySelector('#related');
+    if (suggested) suggested.style.display = result.hideSuggested ? 'none' : '';
+
+    // ====== HIDE COMMENTS ======
+    const comments = document.querySelector('#comments');
+    if (comments) comments.style.display = result.hideComments ? 'none' : '';
   });
 }
 
 // Run initially
 hideElements();
 
-// Observe changes to the DOM and reapply hiding logic
-const observer = new MutationObserver(() => {
-  hideElements();
-});
-
+// Reapply when the DOM changes
+const observer = new MutationObserver(() => hideElements());
 observer.observe(document.body, { childList: true, subtree: true });
 
-// Listen for storage changes
+// Reapply when storage settings change
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === 'sync') {
-    hideElements();
-  }
+  if (areaName === 'sync') hideElements();
 });
+
                                  
 
 
@@ -278,7 +270,7 @@ const createUnifiedPanel = () => {
             <div id="summary-tab" class="tab">
                 <div id="summary-content">
                     <div class="keywords-input-container">
-                        <input type="text" id="keywords-input" placeholder="Enter keywords (comma-separated)">
+                        <input type="text" id="keywords-input" placeholder="Enter keywords for Summarization">
                         <button id="add-keyword" class="keyword-btn">Add</button>
                     </div>
                     <div id="keywords-list" class="keywords-list"></div>
