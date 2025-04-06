@@ -1,6 +1,6 @@
 .note-card {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: #fdfdfd;
+    border: 1px solid #b1b3b7;
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 12px;
@@ -21,11 +21,13 @@
 
 .note-timestamp {
     font-size: 12px;
-    color: #6b7280;
+    color: #f9fafb;
     font-weight: bold;
     position: absolute;
     top: 8px;
     right: 12px;
+    background: #374151;
+    border-radius: 6px;
 }
 
 /* Note Content */
@@ -66,7 +68,7 @@
 
 /* Button Colors */
 .edit-button {
-    background: #f3f4f6;
+    background: #f6f5f3;
     color: #374151;
     border: 1px solid #d1d5db;
 }
