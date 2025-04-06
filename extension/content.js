@@ -98,141 +98,130 @@ chrome.storage.sync.get(['isContentFilteringEnabled', 'filterTopic'], (data) => 
 });
 
 
-//ui manipulation
+//ui-manipulation
 // Function to hide elements based on stored settings
 function hideElements() {
-    chrome.storage.sync.get(['hideShorts', 'hideSuggested', 'hideComments'], function(result) {
-      if (result.hideShorts) {
-        let guideEntries = document.querySelectorAll('ytd-mini-guide-entry-renderer');
-        let shortsTab = Array.from(guideEntries).find(entry => entry.textContent.includes('Shorts'));
-        if (shortsTab) {
-          shortsTab.style.display = 'none';
-        } else {
-          console.log('Shorts tab not found with the current selector');
-        }
+  chrome.storage.sync.get(['hideShorts', 'hideSuggested', 'hideComments'], function(result) {
+    if (result.hideShorts) {
+      let guideEntries = document.querySelectorAll('ytd-mini-guide-entry-renderer');
+      let shortsTab = Array.from(guideEntries).find(entry => entry.textContent.includes('Shorts'));
+      if (shortsTab) {
+        shortsTab.style.display = 'none';
       } else {
-        // Unhide Shorts tab if setting is disabled
-        let guideEntries = document.querySelectorAll('ytd-mini-guide-entry-renderer');
-        let shortsTab = Array.from(guideEntries).find(entry => entry.textContent.includes('Shorts'));
-        if (shortsTab) {
-          shortsTab.style.display = '';
-        }
+        console.log('Shorts tab not found with the current selector');
       }
-  
-      if (result.hideSuggested) {
-        let suggestedVideos = document.querySelector('#related');
-        if (suggestedVideos) {
-          suggestedVideos.style.display = 'none';
-        } else {
-          console.log('Suggested videos section not found');
-        }
+    } else {
+      // Unhide Shorts tab if setting is disabled
+      let guideEntries = document.querySelectorAll('ytd-mini-guide-entry-renderer');
+      let shortsTab = Array.from(guideEntries).find(entry => entry.textContent.includes('Shorts'));
+      if (shortsTab) {
+        shortsTab.style.display = '';
+      }
+    }
+
+    if (result.hideSuggested) {
+      let suggestedVideos = document.querySelector('#related');
+      if (suggestedVideos) {
+        suggestedVideos.style.display = 'none';
       } else {
-        // Unhide Suggested Videos section if setting is disabled
-        let suggestedVideos = document.querySelector('#related');
-        if (suggestedVideos) {
-          suggestedVideos.style.display = '';
-        }
+        console.log('Suggested videos section not found');
       }
-  
-      if (result.hideComments) {
-        let commentsSection = document.querySelector('#comments');
-        if (commentsSection) {
-          commentsSection.style.display = 'none';
-        } else {
-          console.log('Comments section not found');
-        }
+    } else {
+      // Unhide Suggested Videos section if setting is disabled
+      let suggestedVideos = document.querySelector('#related');
+      if (suggestedVideos) {
+        suggestedVideos.style.display = '';
+      }
+    }
+
+    if (result.hideComments) {
+      let commentsSection = document.querySelector('#comments');
+      if (commentsSection) {
+        commentsSection.style.display = 'none';
       } else {
-        // Unhide Comments section if setting is disabled
-        let commentsSection = document.querySelector('#comments');
-        if (commentsSection) {
-          commentsSection.style.display = '';
-        }
+        console.log('Comments section not found');
       }
-    });
-  }
-  
-  // Run initially
-  hideElements();
-  
-  // Observe changes to the DOM and reapply hiding logic
-  const observer = new MutationObserver(() => {
-    hideElements();
-  });
-  
-  observer.observe(document.body, { childList: true, subtree: true });
-  
-  // Listen for storage changes
-  chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === 'sync') {
-      hideElements();
+    } else {
+      // Unhide Comments section if setting is disabled
+      let commentsSection = document.querySelector('#comments');
+      if (commentsSection) {
+        commentsSection.style.display = '';
+      }
     }
   });
-                                   
+}
+
+// Run initially
+hideElements();
+
+// Observe changes to the DOM and reapply hiding logic
+const observer = new MutationObserver(() => {
+  hideElements();
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
+
+// Listen for storage changes
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'sync') {
+    hideElements();
+  }
+});
+                                 
 
 
-
-  // Common variables
-  let videoId = new URLSearchParams(window.location.search).get("v");
+// Common variables
+let videoId = new URLSearchParams(window.location.search).get("v");
 const isVideoPage = window.location.pathname === '/watch';
 const isHomePage = window.location.pathname === '/';
 const apiUrl = "http://localhost:3031";
-  const flaskApiUrl = "http://127.0.0.1:5000";
+const flaskApiUrl = "http://127.0.0.1:5000";
 const youtubeApiKey = "AIzaSyCD9ws46HMxYj753MU5fxVMMHHOs8x0QJw";
 const firebaseApiKey = "AIzaSyACEE7fHRZGwEbw8GlBZhL2AUpLZgzfPWY";
-  
-  // Auth state
-  let currentUser = JSON.parse(localStorage.getItem('ytExtensionAuth')) || null;
 
-  // Timer variables
-  let timer;
-  let startTime;
-  let isTimerVisible = true;
-  let isVideoPlaying = false;
-  let currentVideoId = '';
-  let accumulatedTime = 0;
+// Auth state
+let currentUser = JSON.parse(localStorage.getItem('ytExtensionAuth')) || null;
 
-// Load accumulated time from storage
-chrome.storage.local.get(['totalWatchTime'], (result) => {
-    if (result.totalWatchTime) {
-        accumulatedTime = result.totalWatchTime;
-        if (timerElement) {
-            timerElement.querySelector('.timer-display').textContent = formatTime(accumulatedTime);
-        }
-    }
-});
+// Timer variables
+let timer;
+let startTime;
+let isTimerVisible = true;
+let isVideoPlaying = false;
+let currentVideoId = '';
+let accumulatedTime = 0;
 
-  // Load CSS
-  const loadStyles = () => {
+// Load CSS
+const loadStyles = () => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.type = 'text/css';
     link.href = chrome.runtime.getURL('popup.css');
     document.head.appendChild(link);
-  };
+};
 
-  // Create timer element
-  const createTimerElement = () => {
+// Create timer element
+const createTimerElement = () => {
     const timerElement = document.createElement('div');
     timerElement.id = 'yt-timer';
     timerElement.innerHTML = `
-      <div class="timer-display">00:00:00</div>
-      <button class="timer-toggle">Hide</button>
+        <div class="timer-display">00:00:00</div>
+        <button class="timer-toggle">Hide</button>
     `;
     document.body.appendChild(timerElement);
 
     // Timer toggle
     const toggleButton = timerElement.querySelector('.timer-toggle');
     toggleButton.addEventListener('click', () => {
-      isTimerVisible = !isTimerVisible;
-      timerElement.style.opacity = isTimerVisible ? '1' : '0';
-      toggleButton.textContent = isTimerVisible ? 'Hide' : 'Show';
+        isTimerVisible = !isTimerVisible;
+        timerElement.style.opacity = isTimerVisible ? '1' : '0';
+        toggleButton.textContent = isTimerVisible ? 'Hide' : 'Show';
     });
 
     return timerElement;
-  };
+};
 
-  // Create panel button
-  const createPanelButton = () => {
+// Create panel button
+const createPanelButton = () => {
     const panelButton = document.createElement("button");
     panelButton.textContent = "Study Panel";
     panelButton.id = "yt-panel-button";
@@ -242,10 +231,10 @@ chrome.storage.local.get(['totalWatchTime'], (result) => {
         
         // Add click event listener to the panel button
         panelButton.addEventListener("click", () => {
-            if (unifiedPanel) {
-                unifiedPanel.style.display = unifiedPanel.style.display === "none" ? "flex" : "none";
-                if (unifiedPanel.style.display === "flex") {
-                    // Load data when panel is opened
+            const panel = document.getElementById("yt-unified-panel");
+            if (panel) {
+                panel.style.display = panel.style.display === "none" ? "flex" : "none";
+                if (panel.style.display === "flex") {
                     loadNotes();
                     loadSummary();
                 }
@@ -253,15 +242,15 @@ chrome.storage.local.get(['totalWatchTime'], (result) => {
         });
     }
     return panelButton;
-  };
+};
 
-  // Create unified panel
-  const createUnifiedPanel = () => {
+// Create unified panel
+const createUnifiedPanel = () => {
     const unifiedPanel = document.createElement("div");
     unifiedPanel.id = "yt-unified-panel";
     unifiedPanel.style.display = "none";
     unifiedPanel.innerHTML = `
-      <div class="panel-header">
+        <div class="panel-header">
             <div class="panel-header-top">
         <h3 id="video-title">Study Panel</h3>
                 <div class="panel-controls">
@@ -269,42 +258,106 @@ chrome.storage.local.get(['totalWatchTime'], (result) => {
                     <button id="panel-auth-btn" class="panel-auth-button">${currentUser ? 'Sign Out' : 'Sign In'}</button>
                 </div>
             </div>
-        <div class="tab-buttons">
-          <button class="tab-button active" data-tab="notes">Notes</button>
-          <button class="tab-button" data-tab="summary">Summary</button>
-          <button class="tab-button" data-tab="mcq">MCQs</button>
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="notes">Notes</button>
+                <button class="tab-button" data-tab="summary">Summary</button>
+                <button class="tab-button" data-tab="mcq">MCQs</button>
+            </div>
+            <button id="close-panel">✕</button>
         </div>
-        <button id="close-panel">✕</button>
-      </div>
-      
-      <div class="tab-content">
-        <!-- Notes Tab -->
-        <div id="notes-tab" class="tab active">
-          <div id="note-list"></div>
-          <textarea id="yt-notes-text" placeholder="Write your note here..."></textarea>
-          <button id="yt-save-note">Save Note</button>
-        </div>
+        
+        <div class="tab-content">
+            <!-- Notes Tab -->
+            <div id="notes-tab" class="tab active">
+                <div id="note-list"></div>
+                <textarea id="yt-notes-text" placeholder="Write your note here..."></textarea>
+                <button id="yt-save-note">Save Note</button>
+            </div>
 
-        <!-- Summary Tab -->
-        <div id="summary-tab" class="tab">
-          <div id="summary-content">
-            <textarea id="summary-text" readonly placeholder="Click Generate to create summary"></textarea>
-            <button id="generate-summary">Generate Summary</button>
-          </div>
-        </div>
+            <!-- Summary Tab -->
+            <div id="summary-tab" class="tab">
+                <div id="summary-content">
+                    <div class="keywords-input-container">
+                        <input type="text" id="keywords-input" placeholder="Enter keywords (comma-separated)">
+                        <button id="add-keyword" class="keyword-btn">Add</button>
+                    </div>
+                    <div id="keywords-list" class="keywords-list"></div>
+                    <textarea id="summary-text" readonly placeholder="Click Generate to create summary"></textarea>
+                    <div class="button-container">
+                        <button id="generate-summary">Generate Summary</button>
+                        <div id="summary-loading" class="loading-spinner" style="display: none;">
+                            <div class="spinner"></div>
+                            <span>Generating summary...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- MCQ Tab -->
-        <div id="mcq-tab" class="tab">
-          <div id="mcq-container"></div>
-          <div class="mcq-controls">
-            <button id="prev-btn" disabled>Previous</button>
-            <button id="generate-mcq">Generate MCQs</button>
-            <button id="next-btn" disabled>Next</button>
-          </div>
+            <!-- MCQ Tab -->
+            <div id="mcq-tab" class="tab">
+                <div id="mcq-container"></div>
+                <div class="mcq-controls">
+                    <button id="prev-btn" disabled>Previous</button>
+                    <div class="button-container">
+                        <button id="generate-mcq">Generate MCQs</button>
+                        <div id="mcq-loading" class="loading-spinner" style="display: none;">
+                            <div class="spinner"></div>
+                            <span>Generating MCQs...</span>
+                        </div>
+                    </div>
+                    <button id="next-btn" disabled>Next</button>
+                </div>
+            </div>
         </div>
-      </div>
     `;
     document.body.appendChild(unifiedPanel);
+
+    // Add event listeners for keyword functionality
+    const keywordsInput = unifiedPanel.querySelector('#keywords-input');
+    const addKeywordBtn = unifiedPanel.querySelector('#add-keyword');
+    const keywordsList = unifiedPanel.querySelector('#keywords-list');
+    let keywords = [];
+
+    // Add keyword when button is clicked
+    addKeywordBtn.addEventListener('click', () => {
+        const keyword = keywordsInput.value.trim();
+        if (keyword && !keywords.includes(keyword)) {
+            keywords.push(keyword);
+            updateKeywordsList();
+            keywordsInput.value = '';
+        }
+    });
+
+    // Add keyword when Enter is pressed
+    keywordsInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const keyword = keywordsInput.value.trim();
+            if (keyword && !keywords.includes(keyword)) {
+                keywords.push(keyword);
+                updateKeywordsList();
+                keywordsInput.value = '';
+            }
+        }
+    });
+
+    // Function to update keywords list display
+    function updateKeywordsList() {
+        keywordsList.innerHTML = keywords.map(keyword => `
+            <div class="keyword-tag">
+                ${keyword}
+                <button class="remove-keyword" data-keyword="${keyword}">×</button>
+            </div>
+        `).join('');
+
+        // Add event listeners to remove buttons
+        keywordsList.querySelectorAll('.remove-keyword').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const keywordToRemove = btn.getAttribute('data-keyword');
+                keywords = keywords.filter(k => k !== keywordToRemove);
+                updateKeywordsList();
+            });
+        });
+    }
 
     // Add event listener for the auth button
     const authButton = unifiedPanel.querySelector('#panel-auth-btn');
@@ -330,11 +383,69 @@ chrome.storage.local.get(['totalWatchTime'], (result) => {
         }
     });
 
-    return unifiedPanel;
-  };
+    // Add event listener for summary generation
+    const generateSummaryBtn = unifiedPanel.querySelector('#generate-summary');
+    const summaryLoading = unifiedPanel.querySelector('#summary-loading');
+    generateSummaryBtn.addEventListener('click', async () => {
+        try {
+            // Show loading indicator
+            generateSummaryBtn.disabled = true;
+            summaryLoading.style.display = 'flex';
+            
+            // Get keywords from the list
+            const keywords = Array.from(keywordsList.querySelectorAll('.keyword-tag'))
+                .map(tag => tag.textContent.trim().replace('×', '').trim());
+            
+            const response = await fetch(`${flaskApiUrl}/generate_summary`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    video_id: videoId,
+                    keywords: keywords
+                }),
+            });
 
-  // Create auth container
-  const createAuthContainer = () => {
+            const data = await response.json();
+            if (data.result) {
+                unifiedPanel.querySelector("#summary-text").value = data.result;
+                
+                // Save summary to Firestore if user is signed in
+                if (currentUser) {
+                    try {
+                        await fetch(`${apiUrl}/save-summary`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${currentUser.idToken}`
+                            },
+                            body: JSON.stringify({
+                                videoId,
+                                summary: data.result,
+                                keywords: keywords
+                            })
+                        });
+                    } catch (error) {
+                        console.error("Error saving summary:", error);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error generating summary:", error);
+            alert("Failed to generate summary. Please try again.");
+        } finally {
+            // Hide loading indicator
+            generateSummaryBtn.disabled = false;
+            summaryLoading.style.display = 'none';
+        }
+    });
+
+    return unifiedPanel;
+};
+
+// Create auth container
+const createAuthContainer = () => {
     const authContainer = document.createElement('div');
     authContainer.id = 'yt-auth-container';
     authContainer.style.display = 'none';
@@ -345,31 +456,31 @@ chrome.storage.local.get(['totalWatchTime'], (result) => {
     authContainer.style.maxWidth = '300px';
     
     const authContent = currentUser ? `
-      <div class="auth-modal">
-        <div class="auth-user-info">
-          <img src="${currentUser.picture}" alt="User profile picture">
-          <div>
-            <p>Signed in as <strong>${currentUser.name}</strong></p>
-            <p>${currentUser.email}</p>
-          </div>
+        <div class="auth-modal">
+            <div class="auth-user-info">
+                <img src="${currentUser.picture}" alt="User profile picture">
+                <div>
+                    <p>Signed in as <strong>${currentUser.name}</strong></p>
+                    <p>${currentUser.email}</p>
+                </div>
+            </div>
+            <button id="sign-out-btn">Sign out</button>
         </div>
-        <button id="sign-out-btn">Sign out</button>
-      </div>
     ` : `
-      <div class="auth-modal">
-        <div class="auth-content">
+        <div class="auth-modal">
+            <div class="auth-content">
                 <h3>Sign in to save notes</h3>
                 <p>Generate summaries and MCQs without signing in</p>
-          <button id="google-signin-btn">Sign in with Google</button>
-          <button id="skip-auth-btn">Continue without signing in</button>
+                <button id="google-signin-btn">Sign in with Google</button>
+                <button id="skip-auth-btn">Continue without signing in</button>
+            </div>
         </div>
-      </div>
     `;
     
     authContainer.innerHTML = authContent;
     document.body.appendChild(authContainer);
     return authContainer;
-  };
+};
 
 // Handle navigation
 function handleNavigation() {
@@ -385,16 +496,24 @@ function handleNavigation() {
         // Update video ID and load data
         const newVideoId = new URLSearchParams(window.location.search).get("v");
         if (newVideoId && newVideoId !== videoId) {
-            // Clear existing content before loading new data
-            clearPanelContent();
-            
-            // Update video ID
             videoId = newVideoId;
             
-            // Update video title in panel
-            fetchVideoDetails(videoId);
+            // Clear existing content first
+            document.getElementById("note-list").innerHTML = "";
+            document.getElementById("yt-notes-text").value = "";
+            document.getElementById("summary-text").value = "";
+            document.getElementById("mcq-container").innerHTML = "";
+            document.getElementById("keywords-list").innerHTML = "";
+            document.getElementById("keywords-input").value = "";
             
-            // Load new video's data
+            // Reset MCQ state
+            currentMCQIndex = 0;
+            mcqs = [];
+            document.getElementById("prev-btn").disabled = true;
+            document.getElementById("next-btn").disabled = true;
+            
+            // Load new data
+            fetchVideoDetails(videoId);
             loadNotes();
             loadSummary();
             loadWatchTime();
@@ -408,55 +527,15 @@ function handleNavigation() {
     }
 }
 
-// Function to clear panel content
-function clearPanelContent() {
-    // Clear notes
-    const noteList = document.getElementById("note-list");
-    if (noteList) {
-        noteList.innerHTML = "<p>No notes yet. Add your first note below!</p>";
-    }
-    
-    // Clear notes textarea
-    const notesTextarea = document.getElementById("yt-notes-text");
-    if (notesTextarea) {
-        notesTextarea.value = "";
-    }
-    
-    // Clear summary
-    const summaryText = document.getElementById("summary-text");
-    if (summaryText) {
-        summaryText.value = "";
-    }
-    
-    // Clear MCQs
-    const mcqContainer = document.getElementById("mcq-container");
-    if (mcqContainer) {
-        mcqContainer.innerHTML = "";
-    }
-    
-    // Reset MCQ state
-    currentMCQIndex = 0;
-    mcqs = [];
-    
-    // Reset MCQ navigation buttons
-    const prevBtn = document.getElementById("prev-btn");
-    const nextBtn = document.getElementById("next-btn");
-    if (prevBtn) prevBtn.disabled = true;
-    if (nextBtn) nextBtn.disabled = true;
-}
-
-  // Initialize UI elements
-  loadStyles();
-  const timerElement = createTimerElement();
-  const panelButton = createPanelButton();
-  const unifiedPanel = createUnifiedPanel();
-  const authContainer = createAuthContainer();
+// Initialize UI elements
+loadStyles();
+const timerElement = createTimerElement();
+const panelButton = createPanelButton();
+const unifiedPanel = createUnifiedPanel();
+const authContainer = createAuthContainer();
 
 // Set initial visibility based on current page
 handleNavigation();
-
-// Setup video observer immediately
-setupVideoObserver();
 
 // Add URL change observer for non-click navigation
 const urlObserver = new MutationObserver(() => {
@@ -464,8 +543,6 @@ const urlObserver = new MutationObserver(() => {
     if (currentUrl !== lastUrl) {
         lastUrl = currentUrl;
         handleNavigation();
-        // Re-setup video observer when URL changes
-        setupVideoObserver();
     }
 });
 
@@ -473,74 +550,50 @@ const urlObserver = new MutationObserver(() => {
 let lastUrl = window.location.href;
 urlObserver.observe(document, { subtree: true, childList: true });
 
-// Add a DOM observer to detect when the video player is loaded
-const playerObserver = new MutationObserver((mutations, observer) => {
-    // Check if we're on a video page
-    if (window.location.pathname === '/watch') {
-        // Check if the player controls are available
-        const playerControls = document.querySelector(".ytp-right-controls");
-        if (playerControls && !document.querySelector("#yt-panel-button")) {
-            // Recreate the panel button if it doesn't exist
-            const newPanelButton = createPanelButton();
-            if (newPanelButton) {
-                // Update the reference
-                panelButton = newPanelButton;
-                
-                // Add click event listener to the new panel button
-                newPanelButton.addEventListener("click", () => {
-                    if (unifiedPanel) {
-                        unifiedPanel.style.display = unifiedPanel.style.display === "none" ? "flex" : "none";
-                        if (unifiedPanel.style.display === "flex") {
-                            // Load data when panel is opened
-                            loadNotes();
-                            loadSummary();
-                        }
-                    }
-                });
-            }
-        }
+// Add DOM observer to ensure panel button is created when video player loads
+const playerObserver = new MutationObserver(() => {
+    const playerControls = document.querySelector(".ytp-right-controls");
+    if (playerControls && !document.querySelector("#yt-panel-button")) {
+        createPanelButton();
     }
 });
 
-// Start observing the document body for changes
-playerObserver.observe(document.body, { 
-    childList: true, 
-    subtree: true 
+playerObserver.observe(document.body, {
+    childList: true,
+    subtree: true
 });
 
-  // Timer Functions
-  function formatTime(seconds) {
+// Timer Functions
+function formatTime(seconds) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  }
+}
 
-  function startTimer() {
+function startTimer() {
     if (!isVideoPlaying) return;
     
     if (!startTime) {
-      startTime = Date.now();
+        startTime = Date.now();
     }
     updateTimer();
-  }
+}
 
-  function pauseTimer() {
+function pauseTimer() {
     if (timer) {
-      cancelAnimationFrame(timer);
-      timer = null;
+        cancelAnimationFrame(timer);
+        timer = null;
     }
     if (startTime) {
-      const currentElapsed = (Date.now() - startTime) / 1000;
-      accumulatedTime += currentElapsed;
-      startTime = null;
-        // Save total watch time to storage
-        chrome.storage.local.set({ totalWatchTime: accumulatedTime });
-      saveVideoToHistory();
+        const currentElapsed = (Date.now() - startTime) / 1000;
+        accumulatedTime += currentElapsed;
+        startTime = null;
+        saveVideoToHistory();
     }
-  }
+}
 
-  function updateTimer() {
+function updateTimer() {
     if (!startTime || !isVideoPlaying) return;
     
     const currentElapsed = (Date.now() - startTime) / 1000;
@@ -548,58 +601,58 @@ playerObserver.observe(document.body, {
     timerElement.querySelector('.timer-display').textContent = formatTime(totalElapsed);
     
     timer = requestAnimationFrame(updateTimer);
-  }
+}
 
-  // Video Details
-  const fetchVideoDetails = async (videoId) => {
+// Video Details
+const fetchVideoDetails = async (videoId) => {
     const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${youtubeApiKey}`;
     try {
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.items.length > 0) {
-        const videoDetails = data.items[0].snippet;
-        document.getElementById('video-title').textContent = videoDetails.title;
-      }
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.items.length > 0) {
+            const videoDetails = data.items[0].snippet;
+            document.getElementById('video-title').textContent = videoDetails.title;
+        }
     } catch (error) {
-      console.error("Error fetching video details:", error);
+        console.error("Error fetching video details:", error);
     }
-  };
+};
 
-  // Authentication Functions using Chrome Identity API
-  const handleGoogleSignIn = () => {
+// Authentication Functions using Chrome Identity API
+const handleGoogleSignIn = () => {
     // Show loading state
     authContainer.innerHTML = `
-      <div class="auth-modal">
-        <div class="auth-loading">
-          <p>Signing in...</p>
+        <div class="auth-modal">
+            <div class="auth-loading">
+                <p>Signing in...</p>
+            </div>
         </div>
-      </div>
     `;
 
     chrome.runtime.sendMessage({ action: "googleSignIn" }, async (response) => {
-      if (response.error) {
-        console.error("Authentication failed:", response.error);
-        authContainer.innerHTML = `
-          <div class="auth-modal">
-            <div class="auth-content">
+        if (response.error) {
+            console.error("Authentication failed:", response.error);
+            authContainer.innerHTML = `
+                <div class="auth-modal">
+                    <div class="auth-content">
                         <h3>Sign in to save notes</h3>
-              <p style="color: red;">Sign in failed. Please try again.</p>
-              <button id="google-signin-btn">Sign in with Google</button>
-              <button id="skip-auth-btn">Continue without signing in</button>
-            </div>
-          </div>
-        `;
-        document.getElementById('google-signin-btn').addEventListener('click', handleGoogleSignIn);
-        document.getElementById('skip-auth-btn').addEventListener('click', () => {
-          authContainer.style.display = 'none';
-        });
-        return;
-      }
+                        <p style="color: red;">Sign in failed. Please try again.</p>
+                        <button id="google-signin-btn">Sign in with Google</button>
+                        <button id="skip-auth-btn">Continue without signing in</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('google-signin-btn').addEventListener('click', handleGoogleSignIn);
+            document.getElementById('skip-auth-btn').addEventListener('click', () => {
+                authContainer.style.display = 'none';
+            });
+            return;
+        }
 
-      try {
-        const result = await fetch(`${apiUrl}/auth/google`, {
-          method: 'POST',
-          headers: {
+        try {
+            const result = await fetch(`${apiUrl}/auth/google`, {
+                method: 'POST',
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${response.token}`
                 },
@@ -610,10 +663,10 @@ playerObserver.observe(document.body, {
                         picture: response.user.picture
                     }
                 })
-        });
+            });
 
-        const data = await result.json();
-        if (result.ok) {
+            const data = await result.json();
+            if (result.ok) {
                 // Exchange custom token for ID token using Firebase Auth REST API
                 const idTokenResponse = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseApiKey}`, {
                     method: 'POST',
@@ -638,74 +691,71 @@ playerObserver.observe(document.body, {
                 };
                 
                 localStorage.setItem('ytExtensionAuth', JSON.stringify(currentUser));
-          authContainer.style.display = 'none';
+                authContainer.style.display = 'none';
                 
                 // Update panel auth button
                 const panelAuthBtn = document.querySelector('#panel-auth-btn');
                 if (panelAuthBtn) {
                     panelAuthBtn.textContent = 'Sign Out';
                 }
-          
-          // Update auth container with user info
-          authContainer.innerHTML = `
-            <div class="auth-modal">
-              <div class="auth-user-info">
-                <img src="${data.picture}" alt="User profile picture">
-                <div>
-                  <p>Signed in as <strong>${data.name}</strong></p>
-                  <p>${data.email}</p>
-                </div>
-              </div>
-              <button id="sign-out-btn">Sign out</button>
-                        <button id="skip-signout-btn">Stay Signed In</button>
-            </div>
-          `;
-          
-          document.getElementById('sign-out-btn').addEventListener('click', signOut);
-                document.getElementById('skip-signout-btn').addEventListener('click', () => {
-                    authContainer.style.display = 'none';
-                });
-          // Reload user-specific data
-          loadNotes();
-          loadSummary();
-          loadWatchTime();
-        } else {
-          throw new Error(data.message || "Authentication failed");
-        }
-      } catch (error) {
-        console.error('Error during authentication:', error);
-        authContainer.innerHTML = `
-          <div class="auth-modal">
-            <div class="auth-content">
+                
+                // Update auth container with user info
+                authContainer.innerHTML = `
+                    <div class="auth-modal">
+                        <div class="auth-user-info">
+                            <img src="${data.picture}" alt="User profile picture">
+                            <div>
+                                <p>Signed in as <strong>${data.name}</strong></p>
+                                <p>${data.email}</p>
+                            </div>
+                        </div>
+                        <button id="sign-out-btn">Sign out</button>
+                    </div>
+                `;
+                
+                document.getElementById('sign-out-btn').addEventListener('click', signOut);
+                
+                // Reload user-specific data
+                loadNotes();
+                loadSummary();
+                loadWatchTime();
+            } else {
+                throw new Error(data.message || "Authentication failed");
+            }
+        } catch (error) {
+            console.error('Error during authentication:', error);
+            authContainer.innerHTML = `
+                <div class="auth-modal">
+                    <div class="auth-content">
                         <h3>Sign in to save notes</h3>
-              <p style="color: red;">${error.message}</p>
-              <button id="google-signin-btn">Sign in with Google</button>
-              <button id="skip-auth-btn">Continue without signing in</button>
-            </div>
-          </div>
-        `;
-        document.getElementById('google-signin-btn').addEventListener('click', handleGoogleSignIn);
-        document.getElementById('skip-auth-btn').addEventListener('click', () => {
-          authContainer.style.display = 'none';
-        });
-      }
+                        <p style="color: red;">${error.message}</p>
+                        <button id="google-signin-btn">Sign in with Google</button>
+                        <button id="skip-auth-btn">Continue without signing in</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('google-signin-btn').addEventListener('click', handleGoogleSignIn);
+            document.getElementById('skip-auth-btn').addEventListener('click', () => {
+                authContainer.style.display = 'none';
+            });
+        }
     });
-  };
+};
 
-  const signOut = () => {
+const signOut = () => {
     localStorage.removeItem('ytExtensionAuth');
     currentUser = null;
     
     // Update auth container to sign-in state
     authContainer.innerHTML = `
-      <div class="auth-modal">
-        <div class="auth-content">
+        <div class="auth-modal">
+            <div class="auth-content">
                 <h3>Sign in to save notes</h3>
                 <p>Generate summaries and MCQs without signing in</p>
-          <button id="google-signin-btn">Sign in with Google</button>
-          <button id="skip-auth-btn">Continue without signing in</button>
+                <button id="google-signin-btn">Sign in with Google</button>
+                <button id="skip-auth-btn">Continue without signing in</button>
+            </div>
         </div>
-      </div>
     `;
     
     // Update panel auth button
@@ -717,83 +767,83 @@ playerObserver.observe(document.body, {
     // Reattach event listeners
     document.getElementById('google-signin-btn').addEventListener('click', handleGoogleSignIn);
     document.getElementById('skip-auth-btn').addEventListener('click', () => {
-      authContainer.style.display = 'none';
+        authContainer.style.display = 'none';
     });
     
     // Clear user-specific data from UI
     document.getElementById("note-list").innerHTML = "";
     document.getElementById("summary-text").value = "";
     resetTimer();
-  };
+};
 
-  // Notes Functions
-  const loadNotes = async () => {
+// Notes Functions
+const loadNotes = async () => {
     if (!videoId) return;
 
     try {
         const headers = currentUser ? { 'Authorization': `Bearer ${currentUser.idToken}` } : {};
-      const response = await fetch(`${apiUrl}/notes/${videoId}`, { headers });
-      
-      if (response.ok) {
-        const data = await response.json();
-        const noteList = document.getElementById("note-list");
-        noteList.innerHTML = "";
+        const response = await fetch(`${apiUrl}/notes/${videoId}`, { headers });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const noteList = document.getElementById("note-list");
+            noteList.innerHTML = "";
 
-        if (data.notes && data.notes.length > 0) {
-          data.notes.forEach((note, index) => {
-            const noteDiv = document.createElement("div");
-            noteDiv.classList.add("note");
-            noteDiv.innerHTML = `
-              <div class="note-content">
-                <div class="note-content-button">
-                  <button onclick="window.location.href='https://www.youtube.com/watch?v=${videoId}&t=${note.timestamp}s'">
-                    ${formatTime(note.timestamp)}
-                  </button>
-                  ${currentUser ? `<button class="delete-note" data-index="${index}">Delete</button>` : ''}
-                </div>
-                <div class="note-content-text">
-                  <p>${note.content}</p>
-                </div>
-              </div>
-            `;
-            noteList.appendChild(noteDiv);
-          });
+            if (data.notes && data.notes.length > 0) {
+                data.notes.forEach((note, index) => {
+                    const noteDiv = document.createElement("div");
+                    noteDiv.classList.add("note");
+                    noteDiv.innerHTML = `
+                        <div class="note-content">
+                            <div class="note-content-button">
+                                <button onclick="window.location.href='https://www.youtube.com/watch?v=${videoId}&t=${note.timestamp}s'">
+                                    ${formatTime(note.timestamp)}
+                                </button>
+                                ${currentUser ? `<button class="delete-note" data-index="${index}">Delete</button>` : ''}
+                            </div>
+                            <div class="note-content-text">
+                                <p>${note.content}</p>
+                            </div>
+                        </div>
+                    `;
+                    noteList.appendChild(noteDiv);
+                });
 
-          document.querySelectorAll(".delete-note").forEach((button) => {
-            button.addEventListener("click", async (event) => {
-              const index = event.target.getAttribute("data-index");
-              try {
-                const deleteResponse = await fetch(
-                  `${apiUrl}/notes/${videoId}/${index}`,
-                  { 
-                    method: "DELETE",
+                document.querySelectorAll(".delete-note").forEach((button) => {
+                    button.addEventListener("click", async (event) => {
+                        const index = event.target.getAttribute("data-index");
+                        try {
+                            const deleteResponse = await fetch(
+                                `${apiUrl}/notes/${videoId}/${index}`,
+                                { 
+                                    method: "DELETE",
                                     headers: { 'Authorization': `Bearer ${currentUser.idToken}` }
-                  }
-                );
-                if (deleteResponse.ok) {
-                  loadNotes();
-                }
-              } catch (error) {
-                console.error("Error deleting note:", error);
-              }
-            });
-          });
-        } else {
-          noteList.innerHTML = "<p>No notes yet. Add your first note below!</p>";
-        }
-      } else if (response.status === 401) {
+                                }
+                            );
+                            if (deleteResponse.ok) {
+                                loadNotes();
+                            }
+                        } catch (error) {
+                            console.error("Error deleting note:", error);
+                        }
+                    });
+                });
+            } else {
+                noteList.innerHTML = "<p>No notes yet. Add your first note below!</p>";
+            }
+        } else if (response.status === 401) {
             authContainer.style.display = 'block';
-      }
+        }
     } catch (error) {
-      console.error("Error loading notes:", error);
+        console.error("Error loading notes:", error);
     }
-  };
+};
 
-  // Save note functionality
-  document.getElementById("yt-save-note").addEventListener("click", async () => {
+// Save note functionality
+document.getElementById("yt-save-note").addEventListener("click", async () => {
     if (!currentUser) {
         authContainer.style.display = 'block';
-      return;
+        return;
     }
     
     const newNoteContent = document.getElementById("yt-notes-text").value.trim();
@@ -801,49 +851,49 @@ playerObserver.observe(document.body, {
     const currentTime = Math.floor(player.currentTime);
 
     if (!newNoteContent) {
-      alert("Please write something to add as a note.");
-      return;
+        alert("Please write something to add as a note.");
+        return;
     }
 
     const noteData = {
-      videoId,
-      content: newNoteContent,
-      timestamp: currentTime
+        videoId,
+        content: newNoteContent,
+        timestamp: currentTime
     };
 
     try {
-      const response = await fetch(`${apiUrl}/save-note`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+        const response = await fetch(`${apiUrl}/save-note`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
                 "Authorization": `Bearer ${currentUser.idToken}`
-        },
-        body: JSON.stringify(noteData),
-      });
+            },
+            body: JSON.stringify(noteData),
+        });
 
-      if (response.ok) {
-        loadNotes();
-        document.getElementById("yt-notes-text").value = "";
-      } else {
-        throw new Error("Failed to save note");
-      }
+        if (response.ok) {
+            loadNotes();
+            document.getElementById("yt-notes-text").value = "";
+        } else {
+            throw new Error("Failed to save note");
+        }
     } catch (error) {
-      console.error("Error saving note:", error);
-      alert("An error occurred while saving the note. Please try again.");
+        console.error("Error saving note:", error);
+        alert("An error occurred while saving the note. Please try again.");
     }
-  });
+});
 
-  // Tab switching
-  document.querySelectorAll('.tab-button').forEach(button => {
+// Tab switching
+document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
-      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      
-      button.classList.add('active');
-      const tabId = button.getAttribute('data-tab');
-      document.getElementById(`${tabId}-tab`).classList.add('active');
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        
+        button.classList.add('active');
+        const tabId = button.getAttribute('data-tab');
+        document.getElementById(`${tabId}-tab`).classList.add('active');
     });
-  });
+});
 
 // MCQ functionality
 let currentMCQIndex = 0;
@@ -852,7 +902,14 @@ let mcqs = [];
 document.getElementById("generate-mcq").addEventListener("click", async () => {
     const player = document.querySelector("video");
     const currentTime = Math.floor(player.currentTime);
+    const generateMcqBtn = document.getElementById("generate-mcq");
+    const mcqLoading = document.getElementById("mcq-loading");
+    
     try {
+        // Show loading indicator
+        generateMcqBtn.disabled = true;
+        mcqLoading.style.display = 'flex';
+        
         const response = await fetch(`${flaskApiUrl}/generate_mcqs`, {
             method: 'POST',
             headers: {
@@ -874,6 +931,10 @@ document.getElementById("generate-mcq").addEventListener("click", async () => {
     } catch (error) {
         console.error("Error generating MCQs:", error);
         alert("Failed to generate MCQs. Please try again.");
+    } finally {
+        // Hide loading indicator
+        generateMcqBtn.disabled = false;
+        mcqLoading.style.display = 'none';
     }
 });
 
@@ -950,67 +1011,27 @@ function displayMCQ(index) {
     });
 }
 
-  // Summary functionality
-  document.getElementById("generate-summary").addEventListener("click", async () => {
-    try {
-      const response = await fetch(`${flaskApiUrl}/generate_summary`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ video_id: videoId }),
-      });
-
-      const data = await response.json();
-      if (data.result) {
-        document.getElementById("summary-text").value = data.result;
-        
-            // Save summary to Firestore if user is signed in
-        if (currentUser) {
-                try {
-                    await fetch(`${apiUrl}/save-summary`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${currentUser.idToken}`
-            },
-            body: JSON.stringify({
-              videoId,
-              summary: data.result
-            })
-          });
-                } catch (error) {
-                    console.error("Error saving summary:", error);
-                }
-        }
-      }
-    } catch (error) {
-      console.error("Error generating summary:", error);
-      alert("Failed to generate summary. Please try again.");
-    }
-  });
-
-  // Load saved summary if available
-  const loadSummary = async () => {
+// Load saved summary if available
+const loadSummary = async () => {
     try {
         const headers = currentUser ? { 'Authorization': `Bearer ${currentUser.idToken}` } : {};
-      const response = await fetch(`${apiUrl}/fetch-summary/${videoId}`, { headers });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.summary) {
-          document.getElementById("summary-text").value = data.summary;
+        const response = await fetch(`${apiUrl}/fetch-summary/${videoId}`, { headers });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.summary) {
+                document.getElementById("summary-text").value = data.summary;
             } else {
                 document.getElementById("summary-text").value = "";
+            }
         }
-      }
     } catch (error) {
-      console.error("Error loading summary:", error);
+        console.error("Error loading summary:", error);
     }
-  };
+};
 
-  // Video History Functions
-  async function loadWatchTime() {
+// Video History Functions
+async function loadWatchTime() {
     try {
       const headers = currentUser ? { 'Authorization': `Bearer ${currentUser.idToken}` } : {};
       const response = await fetch(`${apiUrl}/analytics/watch-time/${videoId}`, { headers });
@@ -1041,99 +1062,78 @@ function displayMCQ(index) {
   }
   
 
-  async function saveVideoToHistory() {
+async function saveVideoToHistory() {
     if (!currentUser) return;
     
     const videoTitle = document.querySelector('h1.ytd-video-primary-info-renderer')?.textContent;
     if (!videoTitle || !videoId) return;
 
     const totalElapsed = startTime 
-      ? accumulatedTime + ((Date.now() - startTime) / 1000)
-      : accumulatedTime;
+        ? accumulatedTime + ((Date.now() - startTime) / 1000)
+        : accumulatedTime;
 
     try {
-      await fetch(`${apiUrl}/analytics/watch-time`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+        await fetch(`${apiUrl}/analytics/watch-time`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${currentUser.idToken}`
-        },
-        body: JSON.stringify({
-          videoId,
-          title: videoTitle,
-          url: window.location.href,
-          watchTime: Math.floor(totalElapsed),
-          lastWatched: new Date().toISOString()
-        })
-      });
+            },
+            body: JSON.stringify({
+                videoId,
+                title: videoTitle,
+                url: window.location.href,
+                watchTime: Math.floor(totalElapsed),
+                lastWatched: new Date().toISOString()
+            })
+        });
     } catch (error) {
-      console.error("Error saving watch time:", error);
+        console.error("Error saving watch time:", error);
     }
-  }
+}
 
-  function resetTimer() {
+function resetTimer() {
     if (timer) {
-      cancelAnimationFrame(timer);
-      timer = null;
+        cancelAnimationFrame(timer);
+        timer = null;
     }
     startTime = null;
     isVideoPlaying = false;
     // Don't reset accumulatedTime here
     timerElement.querySelector('.timer-display').textContent = formatTime(accumulatedTime);
-  }
+}
 
-  // Event Listeners
-  document.getElementById("close-panel").addEventListener("click", () => {
+// Event Listeners
+document.getElementById("close-panel").addEventListener("click", () => {
     unifiedPanel.style.display = "none";
-  });
+});
 
-  // Auth button event listeners
-  document.getElementById('google-signin-btn')?.addEventListener('click', handleGoogleSignIn);
-  document.getElementById('skip-auth-btn')?.addEventListener('click', () => {
+// Auth button event listeners
+document.getElementById('google-signin-btn')?.addEventListener('click', handleGoogleSignIn);
+document.getElementById('skip-auth-btn')?.addEventListener('click', () => {
     authContainer.style.display = 'none';
-  });
-  document.getElementById('sign-out-btn')?.addEventListener('click', signOut);
+});
+document.getElementById('sign-out-btn')?.addEventListener('click', signOut);
 
-  // Video player state observers
-  function setupVideoObserver() {
+// Video player state observers
+function setupVideoObserver() {
     const video = document.querySelector('video');
-    if (!video) {
-        // If video element is not found, try again after a short delay
-        setTimeout(setupVideoObserver, 1000);
-        return;
-    }
+    if (!video) return;
 
-    // Remove any existing event listeners
-    video.removeEventListener('play', handlePlay);
-    video.removeEventListener('pause', handlePause);
-    video.removeEventListener('ended', handleEnded);
+    video.addEventListener('play', () => {
+        isVideoPlaying = true;
+        startTimer();
+    });
 
-    // Add new event listeners
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
-    video.addEventListener('ended', handleEnded);
+    video.addEventListener('pause', () => {
+        isVideoPlaying = false;
+        pauseTimer();
+    });
 
-    // If video is already playing, start the timer
-    if (!video.paused) {
-      isVideoPlaying = true;
-      startTimer();
-    }
-}
-
-// Separate event handler functions for better management
-function handlePlay() {
-    isVideoPlaying = true;
-    startTimer();
-}
-
-function handlePause() {
-      isVideoPlaying = false;
-      pauseTimer();
-}
-
-function handleEnded() {
-      isVideoPlaying = false;
-      pauseTimer();
+    video.addEventListener('ended', () => {
+        isVideoPlaying = false;
+        pauseTimer();
+    });
 }
 
 // Add beforeunload event listener to pause timer when leaving the page
