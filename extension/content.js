@@ -905,6 +905,8 @@ let currentMCQIndex = 0;
 let mcqs = [];
 
 document.getElementById("generate-mcq").addEventListener("click", async () => {
+    const player = document.querySelector("video");
+    const currentTime = Math.floor(player.currentTime);
     const generateMcqBtn = document.getElementById("generate-mcq");
     const mcqLoading = document.getElementById("mcq-loading");
     
@@ -918,7 +920,7 @@ document.getElementById("generate-mcq").addEventListener("click", async () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ video_id: videoId }),
+            body: JSON.stringify({ video_id: videoId, currentTime:currentTime }),
         });
 
         const data = await response.json();
